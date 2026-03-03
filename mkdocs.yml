@@ -1,10 +1,10 @@
 site_name: Papyrus Documentation
 site_description: Cross-platform e-book management application
 site_author: Papyrus
-site_url: https://papyrus.example.com/docs/
+site_url: https://papyrusreader.github.io/docs/
 repo_name: Papyrus
-repo_url: https://github.com/Eoic/Papyrus
-edit_uri: edit/master/docs/src/
+repo_url: https://github.com/PapyrusReader/client
+edit_uri: edit/master/src/
 docs_dir: src
 site_dir: site
 
@@ -49,8 +49,6 @@ theme:
 plugins:
   - search:
       separator: '[\s\-\.]+'
-  - minify:
-      minify_html: true
 
 exclude_docs: |
   SUMMARY.md

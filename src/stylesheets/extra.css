@@ -34,6 +34,32 @@
 
 .md-header {
   background-color: var(--md-primary-fg-color);
+  color: var(--md-primary-bg-color);
+}
+
+.md-header .md-icon,
+.md-header .md-header__button {
+  color: var(--md-primary-bg-color);
+}
+
+.md-header__topic {
+  color: var(--md-primary-bg-color);
+}
+
+.md-search__button {
+  color: var(--md-primary-bg-color);
+}
+
+.md-header .md-search__icon svg,
+.md-header .md-search__button svg {
+  fill: var(--md-primary-bg-color);
+}
+
+.md-header a:hover,
+.md-header .md-header__topic:hover,
+.md-header .md-search__button:hover {
+  color: var(--md-primary-bg-color);
+  opacity: 0.8;
 }
 
 .swagger-ui-wrap {
@@ -96,4 +122,12 @@
 [data-md-color-scheme="slate"] .swagger-ui .highlight-code,
 [data-md-color-scheme="slate"] .swagger-ui pre {
   filter: invert(100%) hue-rotate(180deg);
+}
+
+.md-header .md-search__button::before {
+  background-color: white;
+}
+
+.md-header .md-search__button::after {
+  background-color: hsla(var(--md-hue), 15%, 5%, 0.54);
 }

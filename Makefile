@@ -1,4 +1,4 @@
-.PHONY: help install install-dev serve build deploy clean lint
+.PHONY: help install install-dev serve build clean lint
 
 help:
 	@grep -E '^[a-zA-Z_-]+:.*?## .*$$' $(MAKEFILE_LIST) | sort | \
@@ -11,17 +11,14 @@ install-dev:
 	pip install -e ".[dev]"
 
 serve: 
-	mkdocs serve
+	zensical serve
 
 build:
-	mkdocs build --strict
-
-deploy: 
-	mkdocs gh-deploy --force
+	zensical build
 
 clean: 
 	rm -rf site/
 
 lint: 
-	mkdocs build --strict
+	zensical build
 	linkchecker site/index.html --check-extern --no-warnings

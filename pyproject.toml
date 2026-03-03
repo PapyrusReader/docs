@@ -6,17 +6,10 @@ readme = "README.md"
 license = { text = "MIT" }
 requires-python = ">=3.10"
 
-dependencies = [
-    "mkdocs>=1.6",
-    "mkdocs-material>=9.5",
-    "mkdocs-minify-plugin>=0.8",
-    "mkdocs-swagger-ui-tag>=0.6",
-    "pymdown-extensions>=10.0",
-    "pygments>=2.17",
-]
+dependencies = ["zensical>=0.0.24", "mkdocs-swagger-ui-tag>=0.6"]
 
 [project.optional-dependencies]
-dev = ["mike>=2.1", "linkchecker>=10.0"]
+dev = ["linkchecker>=10.0"]
 
 [build-system]
 requires = ["setuptools>=68.0"]
