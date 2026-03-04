@@ -49,7 +49,12 @@ theme:
 plugins:
   - search:
       separator: '[\s\-\.]+'
-  - mermaid2
+  - mermaid2:
+      version: '10.4.0'
+      arguments:
+        theme: |
+          ^(window.matchMedia('(prefers-color-scheme: dark)').matches ||
+            document.body.getAttribute('data-md-color-scheme') === 'slate' ? 'dark' : 'default')
 
 exclude_docs: |
   SUMMARY.md
