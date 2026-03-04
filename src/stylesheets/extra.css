@@ -10,6 +10,8 @@
   cursor: grab;
   display: block;
   margin: 0 auto;
+  user-select: none;
+  touch-action: none;
 }
 
 .mermaid svg:active {
