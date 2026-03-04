@@ -8,25 +8,33 @@ document.addEventListener('DOMContentLoaded', function () {
 });
 
 // Initialize pan/zoom on Mermaid diagrams after they render.
-// mkdocs-mermaid2 triggers rendering asynchronously, so we use a
-// MutationObserver to detect when each .mermaid container receives
-// its SVG child, then attach panzoom.
-document.addEventListener('DOMContentLoaded', function () {
+// Uses Material's document$ observable (fires on every page load including
+// SPA navigation via navigation.instant) instead of DOMContentLoaded.
+// mkdocs-mermaid2 triggers rendering asynchronously after each page load,
+// so a MutationObserver detects SVG insertion and attaches panzoom.
+function initMermaidPanzoom() {
+  if (typeof panzoom === 'undefined') return;
+
   var containers = document.querySelectorAll('.mermaid');
   if (!containers.length) return;
 
   containers.forEach(function (container) {
+    // Skip containers that already have panzoom attached.
+    if (container.dataset.panzoomReady) return;
+    container.dataset.panzoomReady = '1';
+
     var observer = new MutationObserver(function (mutations, obs) {
       var svg = container.querySelector('svg');
       if (!svg) return;
 
       obs.disconnect();
 
-      // Remove fixed width/height so the SVG fills its container.
+      // Remove fixed dimensions so the SVG fills its container.
       svg.removeAttribute('width');
       svg.removeAttribute('height');
       svg.style.width = '100%';
       svg.style.height = 'auto';
+      container.style.height = '';
 
       var instance = panzoom(svg, {
         contain: 'outside',
@@ -42,4 +50,13 @@ document.addEventListener('DOMContentLoaded', function () {
 
     observer.observe(container, { childList: true, subtree: true });
   });
-});
+}
+
+// document$ is Material's RxJS observable — fires on initial load and on
+// every SPA navigation (navigation.instant). Fall back to DOMContentLoaded
+// for environments where document$ is not present.
+if (typeof document$ !== 'undefined') {
+  document$.subscribe(initMermaidPanzoom);
+} else {
+  document.addEventListener('DOMContentLoaded', initMermaidPanzoom);
+}
