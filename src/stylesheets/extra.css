@@ -1,6 +1,19 @@
 .mermaid {
   text-align: center;
   margin: 1.5rem 0;
+  overflow: hidden;
+  border: 1px solid var(--md-default-fg-color--lightest);
+  border-radius: 4px;
+}
+
+.mermaid svg {
+  cursor: grab;
+  display: block;
+  margin: 0 auto;
+}
+
+.mermaid svg:active {
+  cursor: grabbing;
 }
 
 .md-typeset table:not([class]) {
