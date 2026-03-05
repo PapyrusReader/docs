@@ -49,12 +49,6 @@ theme:
 plugins:
   - search:
       separator: '[\s\-\.]+'
-  - mermaid2:
-      version: '10.4.0'
-      arguments:
-        theme: |
-          ^(window.matchMedia('(prefers-color-scheme: dark)').matches ||
-            document.body.getAttribute('data-md-color-scheme') === 'slate' ? 'dark' : 'default')
 
 exclude_docs: |
   SUMMARY.md
@@ -90,7 +84,11 @@ markdown_extensions:
   - pymdownx.mark
   - pymdownx.smartsymbols
   - pymdownx.snippets
-  - pymdownx.superfences
+  - pymdownx.superfences:
+      custom_fences:
+        - name: mermaid
+          class: mermaid
+          format: !!python/name:pymdownx.superfences.fence_code_format
   - pymdownx.tabbed:
       alternate_style: true
   - pymdownx.tasklist:

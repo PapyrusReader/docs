@@ -6,7 +6,7 @@ readme = "README.md"
 license = { text = "MIT" }
 requires-python = ">=3.10"
 
-dependencies = ["zensical>=0.0.24", "mkdocs-swagger-ui-tag>=0.6", "mkdocs-mermaid2-plugin>=1.2"]
+dependencies = ["zensical>=0.0.24", "mkdocs-swagger-ui-tag>=0.6"]
 
 [project.optional-dependencies]
 dev = ["linkchecker>=10.0"]
