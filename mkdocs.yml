@@ -98,9 +98,6 @@ markdown_extensions:
 nav:
   - Home: README.md
 
-  - Analysis:
-      - Market analysis: market-analysis.md
-
   - Requirements:
       - Overview: requirements/README.md
       - Functional requirements: requirements/functional-requirements.md
