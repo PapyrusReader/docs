@@ -1826,6 +1826,26 @@ paths:
       summary: Create annotation
       description: Creates a new text highlight annotation.
       operationId: createAnnotation
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateAnnotationRequest'
+      responses:
+        '201':
+          description: Annotation created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Annotation'
+        '400':
+          $ref: '#/components/responses/ValidationError'
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '404':
+          $ref: '#/components/responses/NotFoundError'
+
 
   /books/{book_id}/annotations/export:
     parameters:
@@ -1877,27 +1897,6 @@ paths:
               schema:
                 type: string
                 format: binary
-        '401':
-          $ref: '#/components/responses/UnauthorizedError'
-        '404':
-          $ref: '#/components/responses/NotFoundError'
-
-  /annotations/{annotation_id}:
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/CreateAnnotationRequest'
-      responses:
-        '201':
-          description: Annotation created
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Annotation'
-        '400':
-          $ref: '#/components/responses/ValidationError'
         '401':
           $ref: '#/components/responses/UnauthorizedError'
         '404':

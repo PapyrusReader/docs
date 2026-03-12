@@ -6,8 +6,8 @@ Overview
 
 Papyrus is an open-source application for reading and managing both physical and digital books. It provides a versatile, user-friendly system that makes reading comfortable and fun across Android, iOS, Web, Desktop (Windows, macOS, Linux), and e-ink devices. Papyrus features an intuitive, familiar, modern UI with extensive customization options, unifying book organization, reading, note-taking, progress tracking, and personalized settings in a single application.
 
-Goals
------
+Project goals
+-------------
 
 1. **Cross-platform** - manage books seamlessly across all devices without relearning the UI.
 2. **Integrated reader** - read uploaded books with extensive customization options.
@@ -49,8 +49,8 @@ Supported file formats
 9. ODT
 10. DJVU.
 
-Feature overview
-----------------
+Features overview
+-----------------
 
 Core features
 ~~~~~~~~~~~~~
@@ -154,7 +154,7 @@ These features are planned for future releases, and may not be seriously conside
 - Plugin system which extend functionality with community plugins
 
 Related documents
-~~~~~~~~~
+~~~~~~~~~~~~~~~~~
 
 .. toctree::
    :maxdepth: 1
@@ -179,11 +179,10 @@ Related documents
    :caption: Implementation
 
    implementation/technologies
-   implementation/user-interface
 
 .. toctree::
    :maxdepth: 1
-   :caption: API
+   :caption: Server
 
    api/index
 

@@ -12,13 +12,19 @@
   margin: 0 auto;
 }
 
-/* Table font sizing */
+.mermaid-container {
+  position: relative;
+}
+
+.mermaid-fullscreen-btn {
+  position: absolute;
+}
+
 .rst-content table.docutils td,
 .rst-content table.docutils th {
   font-size: 0.8rem;
 }
 
-/* Sphinx-Needs dark mode overrides for Furo */
 @media (prefers-color-scheme: dark) {
   body:not([data-theme="light"]) {
     --sn-color-need-bg: #1e1e2e;
@@ -49,7 +55,6 @@ body[data-theme="dark"] {
   --sn-color-debug-btn-border: #999;
 }
 
-/* Graphviz/needflow dark mode adaptation */
 @media (prefers-color-scheme: dark) {
   body:not([data-theme="light"]) .graphviz svg text {
     fill: #d4d4d4 !important;
@@ -82,7 +87,6 @@ body[data-theme="dark"] .graphviz svg .edge polygon[fill="#999999"] {
   fill: #888 !important;
 }
 
-/* Needpie chart: dark_background style blends on dark, needs inversion on light */
 img[id^="needpie-"] {
   border-radius: 8px;
   max-width: 100%;

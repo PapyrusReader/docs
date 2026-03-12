@@ -1,20 +1,13 @@
-"""Sphinx configuration for Papyrus documentation."""
-
 project = "Papyrus"
-copyright = "2025, Papyrus"
-author = "Papyrus"
+copyright = "2026, Papyrus"
+author = "Karolis Strazdas"
 
-extensions = [
-    "sphinx_needs",
-    "sphinxcontrib.mermaid",
-    "sphinx.ext.graphviz",
-]
-
-# -- Theme -------------------------------------------------------------------
+extensions = ["sphinx_needs", "sphinxcontrib.mermaid", "sphinx.ext.graphviz", "sphinxcontrib.openapi"]
 
 html_theme = "furo"
 html_static_path = ["_static"]
 html_css_files = ["custom.css"]
+html_js_files = ["mermaid-panzoom.js"]
 html_title = "Papyrus"
 
 html_theme_options = {
@@ -27,8 +20,6 @@ html_theme_options = {
         "color-brand-content": "#C3C0FF",
     },
 }
-
-# -- Sphinx-Needs ------------------------------------------------------------
 
 needs_types = [
     dict(
@@ -105,19 +96,10 @@ needs_fields = {
 
 needs_id_required = True
 needs_id_regex = r"^(FR|NFR|UC)-[0-9]+_[0-9]+(_[0-9]+)?$"
-
 needs_default_style = ""
 needs_role_need_template = "{title} ({id})"
-
-# -- Graphviz ----------------------------------------------------------------
-
 graphviz_output_format = "svg"
-
-# -- Mermaid -----------------------------------------------------------------
-
 mermaid_output_format = "raw"
-
-# -- General -----------------------------------------------------------------
 
 exclude_patterns = [
     "_build",
