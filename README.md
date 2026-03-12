@@ -1,6 +1,4 @@
-# Papyrus Documentation
-
-Project documentation for [Papyrus](https://github.com/Eoic/Papyrus) — a cross-platform e-book reading and management application.
+# Papyrus documentation
 
 ## Setup
 
