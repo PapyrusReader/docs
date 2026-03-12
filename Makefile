@@ -1,20 +1,20 @@
 .PHONY: help install install-dev serve build clean lint
 
-install: 
+install:
 	pip install -e .
 
 install-dev:
 	pip install -e ".[dev]"
 
-serve: 
-	zensical serve
+serve:
+	sphinx-autobuild . _build/html --port 8000
 
 build:
-	zensical build
+	sphinx-build -b html . _build/html
 
-clean: 
-	rm -rf site/
+clean:
+	rm -rf _build/
 
-lint: 
-	zensical build
-	linkchecker site/index.html --check-extern --no-warnings
+lint:
+	sphinx-build -b html . _build/html
+	linkchecker _build/html/index.html --check-extern --no-warnings

@@ -1,4 +1,5 @@
 site/
+_build/
 __pycache__/
 *.py[cod]
 *.egg-info/
@@ -15,3 +16,4 @@ env/
 .DS_Store
 Thumbs.db
 *.log
+CLAUDE.md

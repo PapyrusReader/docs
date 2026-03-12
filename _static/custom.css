@@ -1,0 +1,114 @@
+/* Mermaid diagram styling */
+.mermaid {
+  text-align: center;
+  margin: 1.5rem 0;
+  overflow: hidden;
+  border: 1px solid var(--color-foreground-border);
+  border-radius: 4px;
+}
+
+.mermaid svg {
+  display: block;
+  margin: 0 auto;
+}
+
+/* Table font sizing */
+.rst-content table.docutils td,
+.rst-content table.docutils th {
+  font-size: 0.8rem;
+}
+
+/* Sphinx-Needs dark mode overrides for Furo */
+@media (prefers-color-scheme: dark) {
+  body:not([data-theme="light"]) {
+    --sn-color-need-bg: #1e1e2e;
+    --sn-color-need-bg-head: rgba(255, 255, 255, 0.08);
+    --sn-color-need-border: #444;
+    --sn-color-complete-bg-head: rgba(255, 255, 255, 0.08);
+    --sn-color-complete-bg-foot: rgba(255, 255, 255, 0.08);
+    --sn-color-bg-gray: #2a2a3a;
+    --sn-color-bg-lightgray: rgba(255, 255, 255, 0.03);
+    --sn-color-border-lightgray: rgba(255, 255, 255, 0.08);
+    --sn-color-datatable-label: #ccc;
+    --sn-color-datatable-btn-border: #666;
+    --sn-color-debug-btn-border: #999;
+  }
+}
+
+body[data-theme="dark"] {
+  --sn-color-need-bg: #1e1e2e;
+  --sn-color-need-bg-head: rgba(255, 255, 255, 0.08);
+  --sn-color-need-border: #444;
+  --sn-color-complete-bg-head: rgba(255, 255, 255, 0.08);
+  --sn-color-complete-bg-foot: rgba(255, 255, 255, 0.08);
+  --sn-color-bg-gray: #2a2a3a;
+  --sn-color-bg-lightgray: rgba(255, 255, 255, 0.03);
+  --sn-color-border-lightgray: rgba(255, 255, 255, 0.08);
+  --sn-color-datatable-label: #ccc;
+  --sn-color-datatable-btn-border: #666;
+  --sn-color-debug-btn-border: #999;
+}
+
+/* Graphviz/needflow dark mode adaptation */
+@media (prefers-color-scheme: dark) {
+  body:not([data-theme="light"]) .graphviz svg text {
+    fill: #d4d4d4 !important;
+  }
+  body:not([data-theme="light"]) .graphviz svg polygon[stroke="#cccccc"],
+  body:not([data-theme="light"]) .graphviz svg path[stroke="#999999"] {
+    stroke: #666 !important;
+  }
+  body:not([data-theme="light"]) .graphviz svg .edge path,
+  body:not([data-theme="light"]) .graphviz svg .edge polygon {
+    stroke: #888 !important;
+  }
+  body:not([data-theme="light"]) .graphviz svg .edge polygon[fill="#999999"] {
+    fill: #888 !important;
+  }
+}
+
+body[data-theme="dark"] .graphviz svg text {
+  fill: #d4d4d4 !important;
+}
+body[data-theme="dark"] .graphviz svg polygon[stroke="#cccccc"],
+body[data-theme="dark"] .graphviz svg path[stroke="#999999"] {
+  stroke: #666 !important;
+}
+body[data-theme="dark"] .graphviz svg .edge path,
+body[data-theme="dark"] .graphviz svg .edge polygon {
+  stroke: #888 !important;
+}
+body[data-theme="dark"] .graphviz svg .edge polygon[fill="#999999"] {
+  fill: #888 !important;
+}
+
+/* Needpie chart: dark_background style blends on dark, needs inversion on light */
+img[id^="needpie-"] {
+  border-radius: 8px;
+  max-width: 100%;
+}
+
+body:not([data-theme="dark"]) img[id^="needpie-"] {
+  filter: invert(1) hue-rotate(180deg);
+}
+
+table.docutils {
+  margin: 0;
+  width: 100%;
+}
+
+table.docutils col {
+    width: auto;
+}
+
+@media (prefers-color-scheme: dark) {
+  body:not([data-theme="light"]) img[id^="needpie-"] {
+    filter: none;
+  }
+}
+
+@media (prefers-color-scheme: light) {
+  body:not([data-theme="dark"]) img[id^="needpie-"] {
+    filter: invert(1) hue-rotate(180deg);
+  }
+}
