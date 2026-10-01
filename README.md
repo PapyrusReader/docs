@@ -1,33 +1,39 @@
 # Papyrus documentation
 
+The documentation site is built with Sphinx.
+
 ## Setup
 
+Use Python 3.12 to match the deployment workflow. Install Graphviz and ensure
+its `dot` executable is on your `PATH` to render the requirement diagrams.
+
 ```bash
-python -m venv .venv
+python3.12 -m venv .venv
 source .venv/bin/activate
 pip install -e ".[dev]"
 ```
 
 ## Usage
 
+Run these commands from the repository root with the virtual environment active.
+
 Live preview:
 
 ```bash
-mkdocs serve
+make serve
 ```
 
-Build static site:
+Build the static site:
 
 ```bash
-mkdocs build
+make build
 ```
 
 The development server runs at **<http://127.0.0.1:8000>** by default.
+The generated site is written to `_build/html/`.
 
 ## Deployment
 
-Deploy to GitHub pages:
-
-```bash
-mkdocs gh-deploy --force
-```
+The [Deploy workflow](.github/workflows/deploy.yml) builds the site with Sphinx
+and deploys `_build/html/` to GitHub Pages when changes are pushed to `master`.
+It can also be run manually from GitHub Actions.
