@@ -1,0 +1,36 @@
+name: Documentation checks
+
+on:
+  pull_request:
+  push:
+    branches: [master]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  documentation:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/checkout@v4
+        with:
+          repository: PapyrusReader/server
+          ref: d01f2196c006824dd4be494b1ed43ff3223cd700
+          path: .server
+      - uses: astral-sh/setup-uv@v6
+        with:
+          python-version: '3.12'
+          enable-cache: true
+      - name: Install Graphviz
+        run: sudo apt-get update && sudo apt-get install -y graphviz
+      - name: Install locked documentation dependencies
+        run: uv sync --locked --extra dev
+      - name: Check API snapshot
+        working-directory: .server
+        run: |
+          uv sync --locked
+          uv run --locked python scripts/export_openapi.py ../_static/openapi.json --check
+      - name: Build documentation
+        run: make build

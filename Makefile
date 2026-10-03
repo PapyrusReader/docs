@@ -1,20 +1,19 @@
-.PHONY: help install install-dev serve build clean lint
+.PHONY: install install-dev serve build clean lint
 
 install:
-	pip install -e .
+	uv sync --locked
 
 install-dev:
-	pip install -e ".[dev]"
+	uv sync --locked --extra dev
 
 serve:
-	sphinx-autobuild . _build/html --port 8000
+	uv run --locked sphinx-autobuild . _build/html --port 8000
 
 build:
-	sphinx-build -b html . _build/html
+	uv run --locked sphinx-build -W --keep-going -b html . _build/html
 
 clean:
 	rm -rf _build/
 
-lint:
-	sphinx-build -b html . _build/html
-	linkchecker _build/html/index.html --check-extern --no-warnings
+lint: build
+	uv run --locked linkchecker _build/html/index.html --check-extern --no-warnings

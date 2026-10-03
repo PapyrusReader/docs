@@ -26,10 +26,12 @@ Back-end
      - Used for
    * - FastAPI (Python)
      - Backend API for authentication, library management, sync, and configuration endpoints.
-   * - Supabase
-     - Managed backend capabilities, especially authentication and hosted Postgres integrations.
-   * - Redis
-     - Caching, transient state, and coordination workloads (for example sessions and rate limiting).
+   * - SQLAlchemy / asyncpg
+     - Asynchronous PostgreSQL persistence.
+   * - Alembic
+     - Versioned database migrations.
+   * - PowerSync
+     - Self-hosted replication from PostgreSQL to client SQLite storage.
    * - Docker
      - Containerized local development and deployment packaging.
 
@@ -58,17 +60,3 @@ Metadata
      - Optional external metadata lookup for books.
    * - Open Library API
      - Optional external metadata lookup for books.
-
-Analytics
----------
-
-.. list-table::
-   :header-rows: 1
-   :widths: 30 70
-
-   * - Technology
-     - Used for
-   * - Sentry
-     - Optional error monitoring and diagnostics.
-   * - Plausible
-     - Optional privacy-focused analytics.
