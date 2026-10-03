@@ -1,0 +1,25 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Papyrus REST API</title>
+  <link rel="stylesheet" href="https://unpkg.com/swagger-ui-dist@5.33.1/swagger-ui.css">
+</head>
+<body>
+  <p><a href="openapi.json">Download the OpenAPI JSON</a></p>
+  <div id="swagger-ui"></div>
+  <script src="https://unpkg.com/swagger-ui-dist@5.33.1/swagger-ui-bundle.js"></script>
+  <script>
+    window.ui = SwaggerUIBundle({
+      url: 'openapi.json',
+      dom_id: '#swagger-ui',
+      deepLinking: true,
+      filter: true,
+      supportedSubmitMethods: [],
+      validatorUrl: null,
+      defaultModelsExpandDepth: -1
+    });
+  </script>
+</body>
+</html>

@@ -2,7 +2,7 @@ project = "Papyrus"
 copyright = "2026, Papyrus"
 author = "Karolis Strazdas"
 
-extensions = ["sphinx_needs", "sphinxcontrib.mermaid", "sphinx.ext.graphviz", "sphinxcontrib.openapi"]
+extensions = ["sphinx_needs", "sphinxcontrib.mermaid", "sphinx.ext.graphviz"]
 
 html_theme = "furo"
 html_static_path = ["_static"]
@@ -97,7 +97,7 @@ needs_fields = {
 needs_id_required = True
 needs_id_regex = r"^(FR|NFR|UC)-[0-9]+_[0-9]+(_[0-9]+)?$"
 needs_default_style = ""
-needs_role_need_template = "{title} ({id})"
+needs_role_need_template = "{{ title }} ({{ id }})"
 graphviz_output_format = "svg"
 mermaid_output_format = "raw"
 
@@ -105,6 +105,7 @@ exclude_patterns = [
     "_build",
     "src",
     ".venv",
+    ".server",
     "venv",
     "site",
     "Thumbs.db",
@@ -113,4 +114,4 @@ exclude_patterns = [
     "README.md",
 ]
 
-templates_path = ["_templates"]
+templates_path = []

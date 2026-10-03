@@ -1,108 +1,32 @@
 Server architecture
 ===================
 
-This document describes the back-end architecture,
-including the self-hostable server, file storage backends, and
-synchronization mechanisms that enable cross-device functionality.
-
-Architecture overview
----------------------
+The current implementation uses FastAPI, PostgreSQL and self-hosted PowerSync.
+The Flutter client keeps a local SQLite library and profile-scoped media cache;
+the reader package owns transient EPUB/PDF sessions and the host persists positions.
 
 .. mermaid::
 
-   flowchart TB
-       subgraph Clients["Clients"]
-           Android["Android"]
-           iOS["iOS"]
-           Web["Web"]
-           Desktop["Desktop"]
-       end
+   flowchart LR
+       Client["Flutter client / SQLite"] -->|"Auth, uploads, media, OPDS"| API["FastAPI"]
+       API --> DB["PostgreSQL"]
+       DB --> Sync["PowerSync service"]
+       Sync -->|"Library replication"| Client
+       API --> Media["Server media storage"]
+       API --> Catalogs["OPDS catalogs / acquisition integrations"]
 
-       subgraph Server["Server"]
-           subgraph Metadata["Metadata storage"]
-               M1["User accounts"]
-               M2["Book metadata"]
-               M3["Reading progress"]
-               M4["Annotations & bookmarks"]
-               M5["Shelves, tags, series"]
-               M6["Reading goals"]
-               M7["Sync coordination"]
-           end
+The API prefix is configurable. The server's example configuration uses ``/v1``,
+not ``/api/v1``. Authentication, library entities, reading profiles, saved filters,
+media and acquisition routes are documented in the generated :doc:`/api/index`.
+Development sandbox routes are available only in debug configurations.
 
-           subgraph FileStorage["File storage (optional)"]
-               F1["Book files"]
-               F2["Cover images"]
-           end
-       end
+Account ownership is validated by services. Offline uploads are serialized per
+owner and committed atomically; tombstones prevent delayed writes from restoring
+deleted data. Physical media cleanup runs after commit. These contracts belong to
+the server services and their regression tests, not a copied endpoint table.
 
-       subgraph AltStorage["Alternative file storage"]
-           direction LR
-           G["Google Drive"]
-           O["OneDrive"]
-           D["Dropbox"]
-           W["WebDAV"]
-           S3["S3"]
-           L["Local device only"]
-           G --- O
-           O --- D
-           D --- W
-           W --- S3
-           S3 --- L
-       end
-
-       Android --> Server
-       iOS --> Server
-       Web --> Server
-       Desktop --> Server
-       Server -.->|"OR (user's choice)"| AltStorage
-       linkStyle 0,1,2,3,4 stroke:transparent,stroke-width:0px;
-
-API endpoints
-~~~~~~~~~~~~~
-
-The Papyrus Server exposes a RESTful API:
-
-.. list-table::
-   :header-rows: 1
-
-   * - Category
-     - Endpoints
-     - Description
-   * - **Auth**
-     - ``/api/v1/auth/*``
-     - Register, login, OAuth, refresh tokens
-   * - **Users**
-     - ``/api/v1/users/*``
-     - Profile, preferences, account deletion
-   * - **Books**
-     - ``/api/v1/books/*``
-     - CRUD operations, metadata, cover images
-   * - **Shelves**
-     - ``/api/v1/shelves/*``
-     - Create, update, organize books
-   * - **Tags**
-     - ``/api/v1/tags/*``
-     - Tag management
-   * - **Series**
-     - ``/api/v1/series/*``
-     - Series management and ordering
-   * - **Annotations**
-     - ``/api/v1/annotations/*``
-     - Highlights, notes, bookmarks
-   * - **Progress**
-     - ``/api/v1/progress/*``
-     - Reading position, sessions, statistics
-   * - **Goals**
-     - ``/api/v1/goals/*``
-     - Goal creation and tracking
-   * - **Sync**
-     - ``/api/v1/sync/*``
-     - Change synchronization
-   * - **Storage**
-     - ``/api/v1/storage/*``
-     - Backend configuration
-   * - **Files**
-     - ``/api/v1/files/*``
-     - File upload/download (when server is file backend)
-
-Full server's API specification in described in the :doc:`API </api/index>` section.
+Local media and Papyrus-managed server storage are implemented. Other cloud
+provider adapters are product goals and should not be inferred from stored
+storage-profile configuration. The requirement and entity diagrams elsewhere in
+this documentation describe target behavior; consult the server models and Alembic
+revisions for the deployed schema.

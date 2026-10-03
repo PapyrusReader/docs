@@ -1,39 +1,41 @@
 # Papyrus documentation
 
-The documentation site is built with Sphinx.
+Sphinx publishes the product requirements, current architecture, and API reference.
+Requirements describe intended capabilities; the implementation chapters describe
+current behavior.
 
-## Setup
+## Setup and preview
 
-Use Python 3.12 to match the deployment workflow. Install Graphviz and ensure
-its `dot` executable is on your `PATH` to render the requirement diagrams.
-
-```bash
-python3.12 -m venv .venv
-source .venv/bin/activate
-pip install -e ".[dev]"
-```
-
-## Usage
-
-Run these commands from the repository root with the virtual environment active.
-
-Live preview:
+Install uv, Python 3.12, and Graphviz (`dot` must be on PATH), then run:
 
 ```bash
+uv sync --locked --extra dev --python 3.12
 make serve
 ```
 
-Build the static site:
+Preview at <http://127.0.0.1:8000>. `make build` produces `_build/html/` and treats
+Sphinx warnings as failures. `make lint` additionally checks external links.
+The Deploy workflow builds with the same lock and publishes GitHub Pages on master.
+
+## API snapshot
+
+`_static/openapi.json` is generated from the server revision pinned in
+[the CI workflow](.github/workflows/ci.yml). To refresh it from the corresponding
+server checkout, run there:
 
 ```bash
-make build
+uv sync --locked
+uv run --locked python scripts/export_openapi.py ../docs/_static/openapi.json
+uv run --locked python scripts/export_openapi.py ../docs/_static/openapi.json --check
 ```
 
-The development server runs at **<http://127.0.0.1:8000>** by default.
-The generated site is written to `_build/html/`.
+The exporter uses deterministic documentation settings and does not start the
+application or connect to a database. Update the CI server revision alongside
+intentional API snapshot changes; CI checks freshness against that revision.
+Deployment-specific API prefixes and debug routes remain documented by each
+server's runtime OpenAPI endpoint.
 
-## Deployment
-
-The [Deploy workflow](.github/workflows/deploy.yml) builds the site with Sphinx
-and deploys `_build/html/` to GitHub Pages when changes are pushed to `master`.
-It can also be run manually from GitHub Actions.
+The [Swagger UI](https://swagger.io/docs/open-source-tools/swagger-ui/usage/installation/)
+reference uses version-pinned CDN assets and needs network access. The JSON download
+remains available without them. Request execution is disabled on the documentation
+site; use a running server's API explorer to make requests.

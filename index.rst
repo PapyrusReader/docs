@@ -1,6 +1,13 @@
 Papyrus
 =======
 
+This site contains both current implementation guidance and product requirements.
+Requirements and design diagrams describe intended behavior; they are not a list
+of released capabilities. See :doc:`implementation/technologies`,
+:doc:`design/server-architecture` and :doc:`api/index` for the implemented stack
+and generated HTTP contract. Current reading supports EPUB and PDF. The client
+also supports metadata import for several additional formats and OPDS catalogs.
+
 Overview
 --------
 
@@ -25,8 +32,8 @@ Target audience
 - Habit builders who want to track reading statistics and build reading habits through goals and gamification.
 - Multi-device users who want to read and access the same data on phones, tablets, e-readers, and PCs interchangeably.
 
-Supported platforms
--------------------
+Target platforms
+----------------
 
 - Android (8.0+).
 - iOS (12.0+).
@@ -35,8 +42,8 @@ Supported platforms
 - macOS (10.15+).
 - Linux.
  
-Supported file formats
-------------------------
+Target file formats
+-------------------
 
 1. EPUB.
 2. PDF.
@@ -49,8 +56,8 @@ Supported file formats
 9. ODT
 10. DJVU.
 
-Features overview
------------------
+Product feature requirements
+----------------------------
 
 Core features
 ~~~~~~~~~~~~~
@@ -144,7 +151,6 @@ Advanced features
 These features are planned for future releases, and may not be seriously considered for implementation:
 
 - Format conversion between formats (create a book copy or replace existing)
-- OPDS catalog browsing to download from online catalogs
 - OCR processing to extract text from scanned document or book files
 - Audiobook support to manage and play audiobooks with synchronized progress
 - Text-to-speech to read books aloud
