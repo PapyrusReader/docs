@@ -15,7 +15,12 @@ make serve
 
 Preview at <http://127.0.0.1:8000>. `make build` produces `_build/html/` and treats
 Sphinx warnings as failures. `make lint` additionally checks external links.
-The Deploy workflow builds with the same lock and publishes GitHub Pages on master.
+Feature/fix PRs target the default `development` branch. CI checks PRs and
+integration pushes without publishing. When ready, promote `development` to
+`master` with a release PR using **Create a merge commit**, then bring `master`
+back into `development`. The Deploy workflow builds with the same lock and
+publishes GitHub Pages only from `master`, including manual runs. Keep both
+long-lived branches and do not squash release promotions.
 
 ## API snapshot
 
