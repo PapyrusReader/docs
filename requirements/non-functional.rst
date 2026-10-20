@@ -1,6 +1,9 @@
 Non-functional Requirements
 ===========================
 
+These targets remain commitments even when implementation or measurements are
+missing. See :doc:`index` for status definitions.
+
 1. Storage
 ----------
 
@@ -31,6 +34,8 @@ Non-functional Requirements
    2. Cloud storage: Google Drive, OneDrive, Dropbox
    3. Self-hosted server (MinIO, local file system)
    4. Network-attached storage (NAS via SMB/NFS)
+   5. WebDAV and S3-compatible storage
+   6. Dedicated Papyrus server
 
    **Acceptance criteria:**
 
@@ -44,14 +49,16 @@ Non-functional Requirements
    :status: open
    :priority: P1
 
-   The system shall support multiple storage backends per user with automatic failover.
+   The system shall support multiple storage backends per user with explicit selection.
 
    **Acceptance criteria:**
 
    - User can configure up to 3 storage backends
    - One backend is designated as primary
-   - Automatic failover to secondary if primary is unavailable
-   - Manual override to force specific backend
+   - User can explicitly select a different backend
+   - An unavailable backend is reported without silently redirecting uploads elsewhere
+
+   Automatic failover and cross-provider replication are outside the committed scope.
 
 .. nfr:: File encryption
    :id: NFR-1_4
@@ -81,10 +88,11 @@ Non-functional Requirements
 
    **Acceptance criteria:**
 
-   - All reading features work offline
+   - Reading features work offline for locally available books
    - Library management works offline
    - Annotations and notes work offline
    - Only sync and cloud features require connectivity
+   - Full-text search works against locally available indexes and reports incomplete offline coverage
    - Clear indicator of online/offline status
 
 .. nfr:: Offline change indicators
@@ -103,31 +111,39 @@ Non-functional Requirements
 
 .. nfr:: Conflict resolution
    :id: NFR-2_3
-   :status: open
+   :status: partial
    :priority: P1
 
-   Synchronization conflicts shall be resolved with user-selectable strategies.
-
-   **Resolution Strategies:**
-
-   1. Server wins (default)
-   2. Client wins
-   3. Manual resolution (user chooses)
-   4. Merge (where possible)
+   Synchronization uses one server-authoritative last-write-wins policy,
+   enforced by the Papyrus API. PowerSync replicates the resulting database state.
 
    **Acceptance criteria:**
 
-   - User can set default strategy in settings
-   - Per-conflict override option
-   - Conflict history log
-   - No silent data loss
+   - The last valid write applied by the server wins for each supplied field, including reading position
+   - Client wall-clock timestamps do not determine precedence
+   - Changes to different fields are preserved when uploads contain only the changed fields
+   - JSON objects and arrays are field values, with no implicit recursive merge
+   - Entity deletions take precedence over stale updates, using tombstones to prevent resurrection
+   - Per-client upload order is preserved, and retries do not duplicate an operation's effects
+   - Validation, ownership checks, and append-only history rules still apply before a write is accepted
+   - There is no user-selectable strategy or manual conflict-resolution workflow
+   - Detected conflicts are recorded in a history log without requiring user resolution
+
+   An older offline edit uploaded later may replace a newer edit to the same
+   field. This is the expected consequence of server-order last-write-wins.
+   See :doc:`/design/server-architecture` for implementation boundaries.
+
+   **Implementation:** The server applies supplied fields and protects deleted
+   entities with tombstones. The conflict history log and full acceptance
+   coverage remain outstanding.
 
 .. nfr:: Sync performance
    :id: NFR-2_4
    :status: open
    :priority: P0
 
-   Cross-device synchronization shall complete within 30 seconds under normal network conditions (>= 1 Mbps).
+   Under normal network conditions (>= 1 Mbps), reading positions shall synchronize
+   within 30 seconds and other metadata within 1 minute.
 
    **Acceptance criteria:**
 
@@ -202,6 +218,9 @@ Non-functional Requirements
    - Background sync support
    - Push notifications (optional)
 
+   **Implementation:** The client currently targets iOS 15.0. The iOS 12.0
+   requirement remains an unmet compatibility target.
+
 .. nfr:: E-ink device support
    :id: NFR-3_4
    :status: open
@@ -248,12 +267,13 @@ Non-functional Requirements
    :status: open
    :priority: P0
 
-   Book opening time shall not exceed 2 seconds for files up to 50 MB.
+   Book opening time shall be under 2 seconds for EPUB and under 3 seconds for PDF
+   files up to 50 MB.
 
    **Acceptance criteria:**
 
-   - EPUB < 50 MB opens in < 2 seconds
-   - PDF < 50 MB opens in < 3 seconds
+   - EPUB up to 50 MB opens in < 2 seconds
+   - PDF up to 50 MB opens in < 3 seconds
    - Progress indicator for larger files
    - Last reading position restored automatically
    - Opening performance measured on mid-range devices
@@ -410,7 +430,7 @@ Non-functional Requirements
    :status: open
    :priority: P0
 
-   All data transmission shall use TLS 1.3 or higher encryption.
+   All data transmission shall use TLS 1.2 or higher, with TLS 1.3 preferred.
 
    **Acceptance criteria:**
 

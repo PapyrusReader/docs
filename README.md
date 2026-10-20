@@ -1,8 +1,9 @@
 # Papyrus documentation
 
-Sphinx publishes the product requirements, current architecture, and API reference.
-Requirements describe intended capabilities; the implementation chapters describe
-current behavior.
+Sphinx publishes a user manual and technical specification. Requirements describe
+intended capabilities, while implementation notes describe current behavior.
+The [Papyrus GitHub Project](https://github.com/orgs/PapyrusReader/projects/1)
+tracks requirements and tasks across the component repositories.
 
 ## Setup and preview
 
@@ -21,6 +22,26 @@ integration pushes without publishing. When ready, promote `development` to
 back into `development`. The Deploy workflow builds with the same lock and
 publishes GitHub Pages only from `master`, including manual runs. Keep both
 long-lived branches and do not squash release promotions.
+
+## Requirements and local agents
+
+Run `make requirements` to validate and export the structured requirements and
+tasks, and `make test` to test the synchronization and task eligibility rules.
+CI also performs these checks and uploads the generated JSON as an artifact.
+
+With GitHub CLI authenticated for repository and Projects access:
+
+```bash
+make project-plan
+make project-sync
+uv run --locked python scripts/work_issue.py https://github.com/PapyrusReader/docs/issues/NUMBER --launch
+```
+
+Synchronization requires committed, pushed documentation. It preserves discussion
+outside the managed issue section and does not automatically close requirements.
+Local launches claim only Ready tasks with completed dependencies and prepare an
+isolated checkout. See [the workflow](implementation/github-workflow.rst) for field
+ownership, changed specifications, claim recovery, and PR completion.
 
 ## API snapshot
 

@@ -17,7 +17,7 @@ jobs:
       - uses: actions/checkout@v4
         with:
           repository: PapyrusReader/server
-          ref: d01f2196c006824dd4be494b1ed43ff3223cd700
+          ref: cb00001f8bca3d204de403941fd113d7ede234a5
           path: .server
       - uses: astral-sh/setup-uv@v6
         with:
@@ -34,3 +34,13 @@ jobs:
           uv run --locked python scripts/export_openapi.py ../_static/openapi.json --check
       - name: Build documentation
         run: make build
+      - name: Validate requirement and task export
+        run: make requirements
+      - name: Test GitHub synchronization and task gates
+        run: make test
+      - uses: actions/upload-artifact@v4
+        with:
+          name: requirements
+          path: |
+            _build/needs/needs.json
+            _build/work-items.json

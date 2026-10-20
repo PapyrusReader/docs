@@ -2874,6 +2874,15 @@
       "CreateGoalRequest": {
         "description": "Goal creation request.",
         "properties": {
+          "book_ids": {
+            "items": {
+              "format": "uuid",
+              "type": "string"
+            },
+            "maxItems": 1000,
+            "title": "Book Ids",
+            "type": "array"
+          },
           "description": {
             "anyOf": [
               {
@@ -2893,6 +2902,40 @@
           "goal_type": {
             "$ref": "#/components/schemas/GoalType"
           },
+          "is_recurring": {
+            "default": true,
+            "title": "Is Recurring",
+            "type": "boolean"
+          },
+          "minimum_minutes": {
+            "default": 5,
+            "maximum": 1440.0,
+            "minimum": 1.0,
+            "title": "Minimum Minutes",
+            "type": "integer"
+          },
+          "scope": {
+            "default": "library",
+            "enum": [
+              "library",
+              "book",
+              "shelf"
+            ],
+            "title": "Scope",
+            "type": "string"
+          },
+          "scope_id": {
+            "anyOf": [
+              {
+                "format": "uuid",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Scope Id"
+          },
           "start_date": {
             "format": "date",
             "title": "Start Date",
@@ -2905,6 +2948,11 @@
           },
           "time_period": {
             "$ref": "#/components/schemas/TimePeriod"
+          },
+          "timezone": {
+            "default": "UTC",
+            "title": "Timezone",
+            "type": "string"
           },
           "title": {
             "maxLength": 255,
@@ -3078,7 +3126,7 @@
         "type": "object"
       },
       "CreateReadingSessionRequest": {
-        "description": "Reading session creation request.",
+        "description": "Reading session creation request; optional id supports retry-safe uploads.",
         "properties": {
           "book_id": {
             "format": "uuid",
@@ -3135,6 +3183,7 @@
           "pages_read": {
             "anyOf": [
               {
+                "minimum": 0.0,
                 "type": "integer"
               },
               {
@@ -3142,6 +3191,18 @@
               }
             ],
             "title": "Pages Read"
+          },
+          "session_id": {
+            "anyOf": [
+              {
+                "format": "uuid",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Session Id"
           },
           "start_position": {
             "anyOf": [
@@ -3512,6 +3573,11 @@
           },
           "file_storage": {
             "$ref": "#/components/schemas/FileStorageSettings"
+          },
+          "tracking_schema_version": {
+            "default": 2,
+            "title": "Tracking Schema Version",
+            "type": "integer"
           }
         },
         "required": [
@@ -3756,6 +3822,15 @@
       "Goal": {
         "description": "Goal response schema.",
         "properties": {
+          "book_ids": {
+            "items": {
+              "format": "uuid",
+              "type": "string"
+            },
+            "maxItems": 1000,
+            "title": "Book Ids",
+            "type": "array"
+          },
           "completed_at": {
             "anyOf": [
               {
@@ -3820,10 +3895,25 @@
             "title": "Is Active",
             "type": "boolean"
           },
+          "is_archived": {
+            "default": false,
+            "title": "Is Archived",
+            "type": "boolean"
+          },
           "is_completed": {
             "default": false,
             "title": "Is Completed",
             "type": "boolean"
+          },
+          "is_recurring": {
+            "default": true,
+            "title": "Is Recurring",
+            "type": "boolean"
+          },
+          "minimum_minutes": {
+            "default": 5,
+            "title": "Minimum Minutes",
+            "type": "integer"
           },
           "progress_percentage": {
             "anyOf": [
@@ -3836,6 +3926,28 @@
             ],
             "title": "Progress Percentage"
           },
+          "scope": {
+            "default": "library",
+            "enum": [
+              "library",
+              "book",
+              "shelf"
+            ],
+            "title": "Scope",
+            "type": "string"
+          },
+          "scope_id": {
+            "anyOf": [
+              {
+                "format": "uuid",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Scope Id"
+          },
           "start_date": {
             "format": "date",
             "title": "Start Date",
@@ -3847,6 +3959,11 @@
           },
           "time_period": {
             "$ref": "#/components/schemas/TimePeriod"
+          },
+          "timezone": {
+            "default": "UTC",
+            "title": "Timezone",
+            "type": "string"
           },
           "title": {
             "title": "Title",
@@ -3899,7 +4016,8 @@
         "enum": [
           "books_count",
           "pages_count",
-          "reading_time"
+          "reading_time",
+          "reading_days"
         ],
         "title": "GoalType",
         "type": "string"
@@ -4629,7 +4747,10 @@
               "annotations",
               "bookmarks",
               "book_shelves",
-              "book_tags"
+              "book_tags",
+              "reading_goals",
+              "reading_activities",
+              "goal_periods"
             ],
             "title": "Type",
             "type": "string"
@@ -6613,6 +6734,17 @@
             ],
             "title": "Is Active"
           },
+          "is_archived": {
+            "anyOf": [
+              {
+                "type": "boolean"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Is Archived"
+          },
           "target_value": {
             "anyOf": [
               {
@@ -7553,7 +7685,7 @@
       "url": "https://www.gnu.org/licenses/agpl-3.0.html"
     },
     "title": "Papyrus Server API",
-    "version": "1.0.0"
+    "version": "0.0.2"
   },
   "openapi": "3.1.0",
   "paths": {
@@ -11228,7 +11360,6 @@
     },
     "/v1/goals": {
       "get": {
-        "description": "Return all goals for the user.",
         "operationId": "list_goals_v1_goals_get",
         "parameters": [
           {
@@ -11281,7 +11412,6 @@
         ]
       },
       "post": {
-        "description": "Create a new reading goal.",
         "operationId": "create_goal_v1_goals_post",
         "requestBody": {
           "content": {
@@ -11328,7 +11458,6 @@
     },
     "/v1/goals/{goal_id}": {
       "delete": {
-        "description": "Delete a goal.",
         "operationId": "delete_goal_v1_goals__goal_id__delete",
         "parameters": [
           {
@@ -11368,7 +11497,6 @@
         ]
       },
       "get": {
-        "description": "Return detailed information about a goal.",
         "operationId": "get_goal_v1_goals__goal_id__get",
         "parameters": [
           {
@@ -11415,7 +11543,6 @@
         ]
       },
       "patch": {
-        "description": "Update goal properties.",
         "operationId": "update_goal_v1_goals__goal_id__patch",
         "parameters": [
           {
@@ -12100,7 +12227,6 @@
     },
     "/v1/progress/sessions": {
       "get": {
-        "description": "Return paginated list of reading sessions.",
         "operationId": "list_reading_sessions_v1_progress_sessions_get",
         "parameters": [
           {
@@ -12233,7 +12359,6 @@
         ]
       },
       "post": {
-        "description": "Record a new reading session.",
         "operationId": "create_reading_session_v1_progress_sessions_post",
         "requestBody": {
           "content": {
@@ -12280,11 +12405,9 @@
     },
     "/v1/progress/statistics": {
       "get": {
-        "description": "Return reading statistics for the specified period.",
         "operationId": "get_reading_statistics_v1_progress_statistics_get",
         "parameters": [
           {
-            "description": "Start date for statistics period",
             "in": "query",
             "name": "start_date",
             "required": false,
@@ -12298,12 +12421,10 @@
                   "type": "null"
                 }
               ],
-              "description": "Start date for statistics period",
               "title": "Start Date"
             }
           },
           {
-            "description": "End date for statistics period",
             "in": "query",
             "name": "end_date",
             "required": false,
@@ -12317,7 +12438,6 @@
                   "type": "null"
                 }
               ],
-              "description": "End date for statistics period",
               "title": "End Date"
             }
           }

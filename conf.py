@@ -23,6 +23,13 @@ html_theme_options = {
 
 needs_types = [
     dict(
+        directive="task",
+        title="Implementation Task",
+        prefix="TASK-",
+        color="#6FA8D4",
+        style="node",
+    ),
+    dict(
         directive="fr",
         title="Functional Requirement",
         prefix="FR-",
@@ -75,6 +82,18 @@ needs_graphviz_styles = {
 }
 
 needs_fields = {
+    "component": {
+        "description": "Owning repository for an implementation task",
+        "schema": {"type": "string", "enum": ["", "docs", "client", "server", "reader", "website", "papyrus"]},
+    },
+    "readiness": {
+        "description": "Whether task scope is ready for execution, independently of implementation status",
+        "schema": {"type": "string", "enum": ["", "draft", "ready"]},
+    },
+    "validation": {
+        "description": "Required checks and acceptance evidence for an implementation task",
+        "schema": {"type": "string"},
+    },
     "priority": {
         "type": "core",
         "description": "Requirement priority level",
@@ -89,13 +108,17 @@ needs_fields = {
         "type": "core",
         "description": "Implementation status",
         "schema": {
-            "enum": ["open", "in_progress", "implemented", "verified", "deferred"],
+            "enum": ["open", "in_progress", "partial", "implemented", "verified", "deferred"],
         },
     },
 }
 
 needs_id_required = True
-needs_id_regex = r"^(FR|NFR|UC)-[0-9]+_[0-9]+(_[0-9]+)?$"
+needs_id_regex = r"^((FR|NFR|UC)-[0-9]+_[0-9]+(_[0-9]+)?|TASK-[A-Z0-9]+-[0-9]+)$"
+needs_links = {
+    "implements": {"incoming": "implemented by", "outgoing": "implements"},
+    "depends_on": {"incoming": "blocks", "outgoing": "depends on"},
+}
 needs_default_style = ""
 needs_role_need_template = "{{ title }} ({{ id }})"
 graphviz_output_format = "svg"
@@ -112,6 +135,8 @@ exclude_patterns = [
     ".DS_Store",
     "CLAUDE.md",
     "README.md",
+    "scripts",
+    "tests",
 ]
 
 templates_path = []

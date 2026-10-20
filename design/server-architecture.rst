@@ -30,3 +30,37 @@ provider adapters are product goals and should not be inferred from stored
 storage-profile configuration. The requirement and entity diagrams elsewhere in
 this documentation describe target behavior; consult the server models and Alembic
 revisions for the deployed schema.
+
+Synchronization policy
+----------------------
+
+The target conflict policy is specified in :need:`NFR-2_3`. The Papyrus API
+decides which writes to accept. PowerSync carries queued uploads and replicates
+the committed result. Client timestamps are not a global ordering mechanism.
+
+The current library mutation handler discards client-supplied ``updated_at``,
+applies supplied fields, and assigns a server update time. Tombstones protect
+deleted entities. JSON payloads are not recursively merged. Owner serialization,
+atomic batches, and history validation remain part of the server contract.
+These mechanisms need acceptance coverage across the full set of mutable fields
+before the whole requirement can be marked verified.
+
+See `PowerSync conflict handling
+<https://docs.powersync.com/handling-writes/handling-update-conflicts>`_.
+
+Guest and account boundaries
+----------------------------
+
+Guest libraries remain separate from account libraries. Registration and sign-in
+switch the active library without transferring guest data. Server profiles and
+users also have separate database and media scopes. Becoming connected does not
+turn a guest library into a synchronized account library.
+
+Planned contracts
+-----------------
+
+Email verification before sign-in, recoverable account deletion followed by
+permanent cleanup, and full-library content search are requirements with remaining
+implementation work. They are not capabilities established by the architecture
+diagram above. Additional storage providers remain committed targets, but
+automatic failover is outside scope.

@@ -1,12 +1,15 @@
 Functional requirements
 =======================
 
+These are product commitments, not a list of released capabilities. See
+:doc:`index` for status definitions.
+
 1. User management
 ------------------
 
 .. fr:: Account registration
    :id: FR-1_1
-   :status: open
+   :status: partial
    :priority: P0
    :links: UC-1_1
 
@@ -17,11 +20,22 @@ Functional requirements
    - Email must be valid and unique in the system
    - Password must meet minimum security requirements (8+ characters, mixed case, number)
    - Email verification is sent upon registration
-   - Account is created in inactive state until email is verified
+   - Account remains pending verification until the address is verified
+   - Registration does not issue an authenticated application session before verification
+   - Verification links are single-use, expire after 24 hours, and can be resent with rate limiting
+   - Guest use remains available without verification and keeps its own separate library
+
+   **Implementation:** Registration and verification services exist, but
+   registration currently creates an authenticated session. Requiring verification
+   first needs coordinated changes to the server and the client registration flow.
+
+   Email ownership is required because the address identifies the account and
+   supports recovery. See `OWASP authentication guidance
+   <https://cheatsheetseries.owasp.org/cheatsheets/Authentication_Cheat_Sheet.html>`_.
 
 .. fr:: Email/password login
    :id: FR-1_2
-   :status: open
+   :status: partial
    :priority: P0
    :links: UC-1_2
 
@@ -30,13 +44,18 @@ Functional requirements
    **Acceptance criteria:**
 
    - System validates credentials against stored hash
+   - Email verification is required before sign-in
+   - Unverified users can request a new verification email without receiving library access
    - Failed attempts are rate-limited (max 5 per minute)
    - Successful login creates a secure session token
    - User is redirected to their library after login
 
+   **Implementation:** Email/password login exists, but the server does not
+   currently enforce email verification before issuing a session.
+
 .. fr:: OAuth login (Google)
    :id: FR-1_3
-   :status: open
+   :status: partial
    :priority: P1
    :links: UC-1_3
 
@@ -48,10 +67,17 @@ Functional requirements
    - New users are automatically registered on first OAuth login
    - Existing users can link Google account to email account
    - Google profile photo and name are imported (optional)
+   - Google identity is identified by the validated provider subject, not by email alone
+   - Google's verification satisfies the email requirement for Gmail addresses or verified Google Workspace addresses
+   - Other addresses require Papyrus email verification before sign-in
+   - Linking to an existing account requires proof of control of that account
+
+   See `Google's guidance on email ownership and backend authentication
+   <https://developers.google.com/identity/sign-in/android/backend-auth>`_.
 
 .. fr:: Offline mode
    :id: FR-1_4
-   :status: open
+   :status: partial
    :priority: P0
    :links: UC-1_4
 
@@ -62,7 +88,13 @@ Functional requirements
    - All reading and library management features work offline
    - Data is stored locally on device
    - No account required for offline-only usage
-   - Offline users can later create account and migrate data
+   - Guest and signed-in libraries remain separate when registering, signing in, or signing out
+   - Guest data is never automatically copied, merged, or uploaded into an account
+   - Libraries and cached media remain isolated across users and server profiles
+   - Offline reading uses locally available files, and search exposes local index coverage
+
+   **Implementation:** Guest and account database scopes are separate.
+   This does not establish every offline reading, annotation, or search criterion.
 
 .. fr:: Password recovery
    :id: FR-1_5
@@ -79,9 +111,12 @@ Functional requirements
    - Link is single-use and invalidated after password change
    - User must set new password meeting security requirements
 
+   **Implementation:** The server's default reset-link expiry is currently
+   60 minutes, which differs from the 24-hour requirement.
+
 .. fr:: Account deletion
    :id: FR-1_6
-   :status: open
+   :status: partial
    :priority: P1
    :links: UC-1_6
 
@@ -89,12 +124,107 @@ Functional requirements
 
    **Acceptance criteria:**
 
-   - Deletion requires password confirmation
-   - User is warned about data loss
-   - All user data is removed from server within 30 days
+   - Deletion requires recent authentication: password confirmation or reauthentication with the linked Google identity
+   - Users can request deletion from the application and from an accessible web resource
+   - Before confirmation, show the data affected and the exact permanent-deletion deadline
+   - Scheduling deletion revokes active sessions and starts a 30-day recovery window
+   - During that window, authenticated recovery allows the user to explicitly cancel deletion
+   - Signing in for recovery does not silently cancel deletion or restore ordinary account access
+   - After the deadline, permanently delete the account and associated server data, including managed media
+   - Explain any exceptional retention and backup expiry in the published retention policy
    - Local device data remains unless explicitly deleted
 
+   The recovery window is a Papyrus product decision. Google Play requires
+   discoverable deletion requests and actual deletion, but does not prescribe
+   this 30-day window. See `Google Play's account deletion requirements
+   <https://support.google.com/googleplay/android-developer/answer/13327111?hl=en>`_.
+
+   **Implementation:** The server currently disables the account and revokes
+   sessions. Scheduling, recovery, permanent data cleanup, and the external
+   deletion resource remain outstanding.
+
 ----
+
+Authentication implementation tasks
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+.. task:: Define the verification-before-sign-in HTTP contract
+   :id: TASK-AUTH-01
+   :status: open
+   :priority: P0
+   :component: docs
+   :readiness: ready
+   :implements: FR-1_1;FR-1_2;FR-1_3
+   :validation: make build; make requirements; review every response against server auth schemas and client token handling
+
+   **Scope:**
+
+   Specify the pending-verification and successful-sign-in request/response
+   contracts in the authentication architecture documentation. Inspect the
+   existing client and server before choosing response shapes. This task changes
+   documentation, not application behavior.
+
+   **Acceptance criteria:**
+
+   - Define registration, login, resend, verify, refresh, and Google exchange outcomes with HTTP codes and payload examples
+   - Define how unverified Google addresses complete Papyrus verification without receiving library-access tokens
+   - Define expired and reused links, email delivery failures, resend limits, and account-enumeration behavior
+   - Explain how verified users and guest libraries are preserved through the change
+   - Identify the exact schemas, routes, client models, and tests affected
+   - Record a rollout order that keeps client/server changes compatible during deployment
+   - Keep password policy changes, account deletion, and full-library search outside this task
+
+.. task:: Enforce verified sign-in in the authentication service
+   :id: TASK-AUTH-02
+   :status: open
+   :priority: P0
+   :component: server
+   :readiness: ready
+   :implements: FR-1_1;FR-1_2;FR-1_3
+   :depends_on: TASK-AUTH-01
+   :validation: tools/papyrus check server; tools/papyrus test server -- tests/api/routes/test_auth.py tests/services/test_auth.py; use a distinct test database and exclude external provider smoke tests
+
+   **Scope:**
+
+   Implement the accepted verification contract from TASK-AUTH-01 in server
+   schemas, routes, and authentication services. Preserve existing ownership,
+   session revocation, token rotation, and OAuth identity-linking protections.
+
+   **Acceptance criteria:**
+
+   - Registration creates a pending account and dispatches verification without granting application access
+   - Unverified email/password and non-authoritative Google addresses cannot obtain or refresh application access
+   - Verification, resend, expiration, and retry behavior match the approved contract
+   - Verified Google identities follow the documented authority rules
+   - Tests cover successful sign-in, rejected access, expired/reused verification, and existing verified accounts
+   - PR describes any migration and deployment ordering needed by the client task
+   - Public API changes are exported for a coordinated documentation snapshot update
+
+.. task:: Implement pending-verification client flows
+   :id: TASK-AUTH-03
+   :status: open
+   :priority: P0
+   :component: client
+   :readiness: ready
+   :implements: FR-1_1;FR-1_2;FR-1_3;FR-1_4
+   :depends_on: TASK-AUTH-01;TASK-AUTH-02
+   :validation: tools/papyrus check client; focused auth/provider/widget tests; web compile; visual check of narrow mobile and desktop authentication layouts
+
+   **Scope:**
+
+   Consume the accepted server contract and guide users through verification.
+   Update auth models, repository/provider behavior, registration/login UI,
+   callbacks, and tests without changing guest-library ownership.
+
+   **Acceptance criteria:**
+
+   - Pending registration leads to verification guidance rather than the library
+   - Resend, expired-link, invalid-link, Google verification, and retry states are actionable
+   - No authenticated session or signed-in library is installed before verification succeeds
+   - Guest data remains separate during registration, verification, sign-in, cancellation, and sign-out
+   - Verified users can complete sign-in using the existing supported platform callbacks
+   - Widget and persistence regressions cover success, errors, cancellation, and profile isolation
+   - PR provides platform evidence and identifies any unrun device checks
 
 2. Book management
 ------------------
@@ -194,14 +324,24 @@ Functional requirements
    :priority: P1
    :links: UC-2_6
 
-   System provides full-text search within book contents.
+   System provides full-text search across the contents of the entire active library.
 
    **Acceptance criteria:**
 
-   - Search works for EPUB, TXT formats (PDF requires OCR)
+   - Search includes books whose files are not downloaded on the current device
+   - Search supports text extraction from EPUB, TXT, and PDFs containing extractable text
+   - Scanned pages without extractable text require OCR before their contents can be searched
+   - Search scope stays within the active guest library or user and server profile
    - Results show matched text with context
    - Search is case-insensitive by default
    - Results link directly to location in book
+   - Opening a result can request downloading the book when its file is not available locally
+   - Indexing progress, failures, and unsupported content are visible, so incomplete coverage is not presented as a complete search
+   - Offline search uses locally available indexes and clearly indicates any unavailable coverage
+
+   Library-wide indexing, remote search, and offline index availability require
+   dedicated technical design. This requirement does not select an indexing
+   engine or imply that full-text search is currently implemented.
 
 .. fr:: Advanced search
    :id: FR-2_8
@@ -331,6 +471,10 @@ Functional requirements
    - Reading position is automatically saved
    - Table of contents navigation
    - Page/chapter navigation
+
+   **Implementation:** The client reader adapter currently launches EPUB and PDF.
+   Other listed formats remain targets. Metadata import support does not
+   establish reader support.
 
 .. fr:: Viewer customization
    :id: FR-3_2
@@ -499,7 +643,7 @@ Functional requirements
 
 .. fr:: Cross-device sync
    :id: FR-5_3
-   :status: open
+   :status: partial
    :priority: P0
    :links: UC-7_3
 
@@ -510,7 +654,7 @@ Functional requirements
    - Reading position syncs within 30 seconds when online
    - Metadata, shelves, tags, annotations sync automatically
    - Offline changes queued and sync when connection restored
-   - Conflict resolution: latest timestamp wins for position, merge for metadata
+   - Conflict resolution uses one server-authoritative last-write-wins policy as defined by :need:`NFR-2_3`
    - Sync status indicator visible in app (synced, syncing, offline, error)
    - Requires metadata server connection (self-hosted or official)
 
@@ -596,12 +740,13 @@ Functional requirements
 
    **Acceptance criteria:**
 
-   - Options: device local, Google Drive, OneDrive, Dropbox, WebDAV, MinIO/S3, dedicated Papyrus server
+   - Options: device local, Google Drive, OneDrive, Dropbox, WebDAV, MinIO/S3, NAS via SMB/NFS, dedicated Papyrus server
    - Multiple backends can be configured simultaneously
    - One backend is designated as primary for new uploads
    - Files can be migrated between backends without data loss
    - Backend configuration accessible from Settings > Storage
    - Connection status and storage usage displayed
+   - Backend selection is explicit, with no automatic failover or cross-provider replication requirement
 
    See :doc:`/design/server-architecture` for details.
 
