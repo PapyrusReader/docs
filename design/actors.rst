@@ -76,7 +76,7 @@ Privacy-conscious individuals who avoid cloud services, users evaluating the app
 - Use all reading features without registration
 - Maintain complete privacy and local data control
 - Access the application without internet dependency
-- Optionally convert to registered user later without data loss
+- Optionally create an account while retaining a separate guest library
 
 **Constraints**
 

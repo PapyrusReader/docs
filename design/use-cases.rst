@@ -3,6 +3,9 @@ Use cases
 
 This section presents the main use cases derived from the functional requirements. Each use case includes actors, requirements traceability, detailed flows, and alternative scenarios.
 
+These are target flows. See the linked requirements for implementation notes and
+:doc:`/requirements/index` for status definitions.
+
 Use case notation
 -----------------
 
@@ -35,7 +38,7 @@ Use case notation
 
 .. uc:: Create user account
    :id: UC-1_1
-   :status: open
+   :status: partial
    :priority: P0
    :actors: Anonymous User → Registered User
    :links: FR-1_1
@@ -53,10 +56,10 @@ Use case notation
    2. User enters email address and password
    3. System validates email format and uniqueness
    4. System validates password strength (8+ chars, mixed case, number)
-   5. System creates account in inactive state
+   5. System creates an account pending verification without an authenticated application session
    6. System sends verification email
    7. User clicks verification link
-   8. System activates account
+   8. System verifies the address and permits sign-in
    9. User is redirected to login screen
 
    **Alternative flows:**
@@ -86,10 +89,11 @@ Use case notation
 
    - New user account exists
    - User can log in with credentials
+   - Any existing guest library remains separate and is not uploaded
 
 .. uc:: Login with credentials
    :id: UC-1_2
-   :status: open
+   :status: partial
    :priority: P0
    :actors: Registered User
    :links: FR-1_2
@@ -105,7 +109,7 @@ Use case notation
 
    1. User navigates to login screen
    2. User enters email and password
-   3. System validates credentials
+   3. System validates credentials, email verification, and account state
    4. System creates session token
    5. User is redirected to library
 
@@ -123,6 +127,7 @@ Use case notation
 
    - At step 3, if account not verified:
 
+     - System refuses sign-in without issuing a library-access session
      - System prompts to resend verification email
 
    *A3: Account disabled*
@@ -132,15 +137,23 @@ Use case notation
      - System displays account disabled message
      - User is directed to support contact
 
+   *A4: Account scheduled for deletion*
+
+   - Valid credentials permit only the recovery flow before the deletion deadline
+   - User explicitly cancels deletion to restore normal access
+   - Recovery is unavailable after the deadline
+   - See :need:`UC-1_6`
+
    **Postconditions:**
 
    - User is authenticated
    - Session token is stored on device
    - User has access to their library
+   - Guest, other user, and other server libraries remain separate
 
 .. uc:: Login with Google account
    :id: UC-1_3
-   :status: open
+   :status: partial
    :priority: P1
    :actors: Registered User
    :links: FR-1_3
@@ -158,9 +171,9 @@ Use case notation
    2. System redirects to Google OAuth
    3. User authorizes application
    4. Google returns authorization code
-   5. System exchanges code for user info
+   5. System exchanges the code and validates the Google identity token and subject
    6. If new user, system creates account
-   7. System creates session token
+   7. System confirms email verification under :need:`FR-1_3` before creating a session
    8. User is redirected to library
 
    **Alternative flows:**
@@ -177,7 +190,17 @@ Use case notation
    - At step 6, if email matches existing account:
 
      - System prompts to link accounts
-     - User confirms linking
+     - User authenticates the existing Papyrus account and confirms linking
+
+   *A3: Google cannot establish current email ownership*
+
+   - Papyrus sends its own email verification link
+   - No authenticated application session is issued until verification completes
+
+   *A4: Account scheduled for deletion*
+
+   - Reauthentication with the linked Google identity permits the recovery flow
+   - The same deadline and explicit cancellation rules in :need:`UC-1_6` apply
 
    **Postconditions:**
 
@@ -186,7 +209,7 @@ Use case notation
 
 .. uc:: Use application offline
    :id: UC-1_4
-   :status: open
+   :status: partial
    :priority: P0
    :actors: Anonymous User, Registered User
    :links: FR-1_4;NFR-2_1
@@ -203,7 +226,7 @@ Use case notation
    1. User opens application without internet
    2. System detects offline state
    3. System loads local data
-   4. User accesses library and books
+   4. User accesses the active library and locally available books
    5. User can read, annotate, organize
    6. Changes are stored locally
    7. Offline indicator is displayed
@@ -224,13 +247,25 @@ Use case notation
 
    - When internet restored:
 
-     - System begins background sync
+     - System resumes background sync for the signed-in library
      - Pending changes indicator updates
+     - Guest data remains local and separate
+
+   *A4: Guest signs in or registers*
+
+   - System opens the account's separate library
+   - Existing guest books, metadata, and cached files are not copied or merged
+   - Returning to guest mode restores the guest library
+
+   *A5: Search while offline*
+
+   - Search uses locally available indexes
+   - Missing index coverage is shown explicitly
 
    **Postconditions:**
 
    - User can use reading and management features
-   - Changes are queued for sync
+   - Signed-in changes are queued for sync, while guest changes remain local
 
 .. uc:: Recover password
    :id: UC-1_5
@@ -279,27 +314,27 @@ Use case notation
 
 .. uc:: Delete account
    :id: UC-1_6
-   :status: open
+   :status: partial
    :priority: P1
    :actors: Registered User
    :links: FR-1_6
 
-   User permanently deletes their account and all data.
+   User schedules permanent account deletion with a 30-day recovery window.
 
    **Preconditions:**
 
-   - User is logged in
+   - User can authenticate the account through the application or deletion web resource
    - User understands consequences
 
    **Main flow:**
 
-   1. User navigates to account settings
+   1. User opens account settings or the account-deletion web resource
    2. User selects "Delete account"
-   3. System displays warning about data loss
-   4. User confirms by entering password
-   5. System marks account for deletion
-   6. System logs user out
-   7. Account and data deleted within 30 days
+   3. System explains affected data and displays the permanent-deletion deadline
+   4. User confirms with a password or reauthenticates the linked Google identity
+   5. System schedules deletion for 30 days after confirmation
+   6. System revokes active sessions and disables normal account access
+   7. At the deadline, system permanently deletes the account and associated server data, including managed media
 
    **Alternative flows:**
 
@@ -310,13 +345,24 @@ Use case notation
 
    *A2: Cancel deletion*
 
-   - Within 7 days, user can log in to cancel
-   - Account is restored to active state
+   - Before the 30-day deadline, user authenticates into a limited recovery flow
+   - System shows the deadline and offers explicit cancellation
+   - Confirming cancellation restores the account and its data
+   - Authentication alone does not cancel deletion
+
+   *A3: Recovery window expired*
+
+   - Recovery is refused after the deadline
+   - Retried deletion jobs finish any remaining physical cleanup
+
+   *A4: Application is uninstalled*
+
+   - The deletion web resource accepts the request without requiring installation
 
    **Postconditions:**
 
-   - Account is deleted
-   - User data removed from server
+   - Until the deadline, the account remains recoverable with normal access disabled
+   - After the deadline, the account and associated server data are permanently deleted
    - Local data remains on device
 
 ----
@@ -563,8 +609,12 @@ Use case notation
 
    *A1: Full-text search*
 
-   - User searches book contents
+   - User searches content across the entire active library, including books not downloaded on this device
    - Results show matched text with context
+   - Results navigate to the source location, offering a download when necessary
+   - Indexing progress and unavailable or unsupported content remain visible
+   - Offline results identify the coverage of locally available indexes
+   - Text PDFs are indexed directly, while scanned content requires OCR
 
    *A2: Advanced filters*
 
@@ -1189,6 +1239,12 @@ Use case notation
    2. Files stored on same server as metadata
    3. Single server handles everything
 
+   *A7: Storage backend unavailable*
+
+   - System reports the failure without automatically selecting a different backend
+   - User can retry or explicitly choose another configured backend
+   - Existing file locations remain unchanged unless the user initiates migration
+
    **Postconditions:**
 
    - Metadata server connected (optional)
@@ -1225,7 +1281,7 @@ Use case notation
 
 .. uc:: Synchronize data across devices
    :id: UC-7_3
-   :status: open
+   :status: partial
    :priority: P0
    :actors: Registered User
    :links: FR-5_3;NFR-2_1
@@ -1235,7 +1291,7 @@ Use case notation
    **Preconditions:**
 
    - User logged into metadata server on multiple devices
-   - At least one device has internet connection
+   - Both devices eventually connect to receive each other's changes
 
    **Main flow:**
 
@@ -1243,9 +1299,9 @@ Use case notation
    2. Changes are saved locally immediately
    3. Changes are queued in sync queue
    4. When online, client pushes changes to metadata server
-   5. Metadata server records changes with timestamps
-   6. Device B polls or receives push notification
-   7. Device B fetches changes from metadata server
+   5. Papyrus API validates ownership and applies the queued batch atomically
+   6. PowerSync replicates committed database changes
+   7. Device B receives those changes through PowerSync
    8. Device B applies changes to local storage
    9. UI updates to reflect synchronized state
 
@@ -1263,18 +1319,20 @@ Use case notation
 
    *A1: Conflict detected (same book, both devices)*
 
-   1. System compares timestamps
-   2. For reading position: latest timestamp wins
-   3. For metadata: merge non-conflicting fields, latest wins for conflicts
-   4. For annotations: keep both (no conflict, additive)
-   5. User notified of resolved conflicts (optional)
+   1. API applies valid writes in server processing order
+   2. Last applied write wins for each supplied field, including reading position
+   3. Fields omitted from a patch remain unchanged
+   4. JSON values are replaced as fields, without recursive merging
+   5. Distinct annotations remain distinct records, while edits to the same annotation use the same policy
+   6. Tombstones prevent stale writes from restoring deleted entities
+   7. No strategy selector or manual conflict prompt is shown
 
    *A2: Offline changes accumulated*
 
    1. User works offline on device A
    2. Multiple changes queued locally
    3. When device comes online, all queued changes sync
-   4. Server processes changes in timestamp order
+   4. Server preserves each client's queue order and applies :need:`NFR-2_3`
 
    *A3: Book file sync*
 
