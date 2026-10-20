@@ -682,3 +682,27 @@ missing. See :doc:`index` for status definitions.
    - Only the dashboard address is routed through the VPN; normal Internet traffic stays local
    - Client secrets are never committed or printed and can be revoked individually
    - Existing public application endpoints and monitoring continue to operate
+
+.. task:: Monitor aggregate app statistics
+   :id: TASK-OBS-05
+   :status: open
+   :priority: P1
+   :component: observability
+   :readiness: ready
+   :implements: NFR-9_2
+   :depends_on: TASK-OBS-01
+   :validation: isolated PostgreSQL aggregation and failure tests; native monitoring configuration checks; Grafana provisioning smoke tests; production aggregate comparison and authenticated dashboard acceptance
+
+   **Scope:** Add an App statistics dashboard for registered accounts, recent
+   registrations, library entries, uploaded files, and their storage. Collect
+   bounded aggregates periodically without exporting personal or book-level data.
+
+   **Acceptance criteria:**
+
+   - Counts explicitly describe server-synced data and exclude device-only libraries
+   - Library entries, distinct uploaded contents, registered files, logical file bytes, and filesystem usage have separate definitions
+   - Account deletion, duplicate uploads, physical books, and unknown file formats are handled correctly
+   - Collection uses read-only queries with bounded execution time and fixed metric labels
+   - Failed collection preserves the last good snapshot and exposes freshness and failure status
+   - History, storage growth, and recent registration windows are visible without treating gauges as counters
+   - Existing production services, private dashboard access, and alerts remain healthy
