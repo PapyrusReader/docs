@@ -619,7 +619,7 @@ missing. See :doc:`index` for status definitions.
    - Four provisioned dashboards cover service health, subdomain traffic, resources, and database/sync activity
    - Email alerts cover failures, capacity pressure, restarts, and missing telemetry
    - Metrics retain up to 90 days with a size limit; logs retain 14 days with a disk guard
-   - Only authenticated Grafana is publicly reachable, through the shared HTTPS proxy
+   - Grafana requires authentication through the shared HTTPS proxy; collectors remain private
    - Restart, redaction, notification, and rollback behavior are verified
    - Whole-host outage detection and telemetry backups are explicitly deferred
 
@@ -666,6 +666,7 @@ missing. See :doc:`index` for status definitions.
    :component: observability
    :readiness: ready
    :implements: NFR-9_2
+   :depends_on: TASK-OBS-01
    :validation: native configuration checks; private peer provisioning tests; real WireGuard handshake and HTTPS access; public and spoofed-header denial; public application regression checks
 
    **Scope:** Self-host WireGuard on the production VM and make Grafana reachable
