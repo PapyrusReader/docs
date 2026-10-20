@@ -349,9 +349,13 @@ def synchronize(items, config, revision, *, apply=False, github=None):
     if not apply:
         for identifier, item in items.items():
             existing = issues.get(identifier)
-            action = "create" if existing is None else (
-                "update" if metadata(existing["body"])["fingerprint"] != item["fingerprint"] else "keep"
-            )
+            action = "create"
+
+            if existing is not None:
+                body = replace_managed(existing["body"], section(item, revision, config, issues))
+                title = f'[{identifier}] {item["title"]}'
+                action = "update" if body != existing["body"] or title != existing["title"] else "keep"
+
             print(f'{action:6} {item["repository"]:22} {identifier}: {item["title"]}')
 
         for identifier in sorted(issues.keys() - items.keys()):

@@ -1,4 +1,5 @@
 import copy
+import io
 import sys
 import tempfile
 import unittest
@@ -110,6 +111,32 @@ class ExportTests(unittest.TestCase):
 
 
 class SyncTests(unittest.TestCase):
+    def test_plan_reports_revision_only_body_updates_without_writing(self):
+        items = export_items(exported(requirement()), CONFIG)
+        stored = issue(
+            title="[FR-1_1] Registration",
+            repository_url="https://api.github.com/repos/PapyrusReader/docs",
+        )
+        stored["body"] = section(items["FR-1_1"], "a" * 40, CONFIG, {"FR-1_1": stored}) + "\nHuman notes"
+
+        class PlanningGitHub:
+            def project(self, config):
+                return {"id": "PROJECT"}
+
+            def project_items(self, identifier):
+                return {}
+
+            def issues(self, repository):
+                return [stored] if repository.endswith("/docs") else []
+
+            def api(self, *args, **kwargs):
+                raise AssertionError("Planning must not write")
+
+        for revision, expected in [("a" * 40, "keep"), ("b" * 40, "update")]:
+            with self.subTest(revision=revision), patch("sys.stdout", new_callable=io.StringIO) as output:
+                synchronize(items, CONFIG, revision, github=PlanningGitHub())
+                self.assertTrue(output.getvalue().startswith(expected), output.getvalue())
+
     def test_repeat_sync_preserves_notes_and_does_not_write_unchanged_items(self):
         class FakeGitHub:
             def __init__(self):
