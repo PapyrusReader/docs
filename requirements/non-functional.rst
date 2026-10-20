@@ -599,3 +599,62 @@ missing. See :doc:`index` for status definitions.
    - No sensitive data in logs
    - Log rotation and retention policies
    - Error tracking integration (optional)
+
+.. task:: Deploy self-hosted production observability
+   :id: TASK-OBS-01
+   :status: open
+   :priority: P1
+   :component: observability
+   :readiness: ready
+   :implements: NFR-9_2
+   :validation: python3 tools/check.py; python3 -m unittest discover -s tests; Linux Compose smoke tests; authenticated browser and email acceptance; 24-hour production observation
+
+   **Scope:** Provision Grafana, Prometheus, Loki, and Alloy independently of
+   application releases. Own the shared Caddy proxy configuration while preserving
+   its deployment identity and certificates. Use restricted database monitoring
+   roles and sanitized logs. Host the stack on the existing production VM.
+
+   **Acceptance criteria:**
+
+   - Four provisioned dashboards cover service health, subdomain traffic, resources, and database/sync activity
+   - Email alerts cover failures, capacity pressure, restarts, and missing telemetry
+   - Metrics retain up to 90 days with a size limit; logs retain 14 days with a disk guard
+   - Only authenticated Grafana is publicly reachable, through the shared HTTPS proxy
+   - Restart, redaction, notification, and rollback behavior are verified
+   - Whole-host outage detection and telemetry backups are explicitly deferred
+
+.. task:: Expose private PowerSync monitoring metrics
+   :id: TASK-OBS-02
+   :status: open
+   :priority: P1
+   :component: server
+   :readiness: ready
+   :implements: NFR-9_2
+   :validation: deployment checks; PowerSync config test; scrape metrics privately and verify sync readiness
+
+   **Scope:** Enable the existing PowerSync service's Prometheus endpoint without
+   publishing a host port or changing application schemas.
+
+   **Acceptance criteria:**
+
+   - The collector can scrape port 9090 on the private Docker network
+   - Existing public API and synchronization behavior remain available
+
+.. task:: Integrate the observability repository into the workspace
+   :id: TASK-OBS-03
+   :status: open
+   :priority: P1
+   :component: papyrus
+   :readiness: ready
+   :implements: NFR-9_2
+   :depends_on: TASK-OBS-01;TASK-OBS-02
+   :validation: python3 tools/check_deployments.py; tools/papyrus check tooling
+
+   **Scope:** Add the observability submodule and move shared proxy ownership to
+   it. Update deployment validation, CI, and maintainer documentation.
+
+   **Acceptance criteria:**
+
+   - Four independent Compose projects are validated together
+   - Only the edge project publishes ports and databases remain private
+   - Existing component changes and deployment data are preserved
