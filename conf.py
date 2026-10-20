@@ -84,7 +84,7 @@ needs_graphviz_styles = {
 needs_fields = {
     "component": {
         "description": "Owning repository for an implementation task",
-        "schema": {"type": "string", "enum": ["", "docs", "client", "server", "reader", "website", "papyrus"]},
+        "schema": {"type": "string", "enum": ["", "docs", "client", "server", "reader", "website", "papyrus", "observability"]},
     },
     "readiness": {
         "description": "Whether task scope is ready for execution, independently of implementation status",

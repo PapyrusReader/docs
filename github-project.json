@@ -2,5 +2,5 @@
   "owner": "PapyrusReader",
   "number": 1,
   "source_repository": "PapyrusReader/docs",
-  "repositories": ["docs", "client", "server", "reader", "website", "papyrus"]
+  "repositories": ["docs", "client", "server", "reader", "website", "papyrus", "observability"]
 }

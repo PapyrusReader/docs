@@ -30,6 +30,8 @@ implemented and verified product behavior.
      - Public website and account-related web entry points
    * - papyrus
      - Workspace tooling and cross-component integration
+   * - observability
+     - Shared HTTPS proxy, production metrics, logs, dashboards, and alerts
 
 A requirement may have several tasks. Use cases provide context and are not
 automatically converted into duplicate tasks.
