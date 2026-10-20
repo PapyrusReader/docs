@@ -619,7 +619,7 @@ missing. See :doc:`index` for status definitions.
    - Four provisioned dashboards cover service health, subdomain traffic, resources, and database/sync activity
    - Email alerts cover failures, capacity pressure, restarts, and missing telemetry
    - Metrics retain up to 90 days with a size limit; logs retain 14 days with a disk guard
-   - Only authenticated Grafana is publicly reachable, through the shared HTTPS proxy
+   - Grafana requires authentication through the shared HTTPS proxy; collectors remain private
    - Restart, redaction, notification, and rollback behavior are verified
    - Whole-host outage detection and telemetry backups are explicitly deferred
 
@@ -658,3 +658,27 @@ missing. See :doc:`index` for status definitions.
    - Four independent Compose projects are validated together
    - Only the edge project publishes ports and databases remain private
    - Existing component changes and deployment data are preserved
+
+.. task:: Restrict monitoring access to WireGuard
+   :id: TASK-OBS-04
+   :status: open
+   :priority: P1
+   :component: observability
+   :readiness: ready
+   :implements: NFR-9_2
+   :depends_on: TASK-OBS-01
+   :validation: native configuration checks; private peer provisioning tests; real WireGuard handshake and HTTPS access; public and spoofed-header denial; public application regression checks
+
+   **Scope:** Self-host WireGuard on the production VM and make Grafana reachable
+   only through authenticated VPN peers. Preserve the existing dashboard hostname,
+   HTTPS certificate, Grafana login, metrics collection, and email alerts. Provide
+   a private client profile and documented peer revocation and recovery.
+
+   **Acceptance criteria:**
+
+   - Public requests cannot reach Grafana or its login form, including forged forwarding headers
+   - VPN peers can resolve the private dashboard address and access it over valid HTTPS
+   - Peers can reach only dashboard HTTPS and the VPN DNS resolver, not databases or other server ports
+   - Only the dashboard address is routed through the VPN; normal Internet traffic stays local
+   - Client secrets are never committed or printed and can be revoked individually
+   - Existing public application endpoints and monitoring continue to operate
