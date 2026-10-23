@@ -54,6 +54,39 @@ Local storage is not a substitute for an independent backup. Before uninstalling
 the app or clearing browser storage, preserve any local-only files and data you
 need to retain.
 
+Account deletion and recovery
+-----------------------------
+
+Open **Settings > Account > Delete account**. Review the warning about the
+30-day recovery period and choose **Delete account**. Your current signed-in session
+authorizes the request without another password or Google sign-in. The receipt shows
+the deletion date. Cancelling the dialog leaves the account unchanged.
+
+Confirmation disables ordinary access and revokes all Papyrus sessions. Existing
+short-lived PowerSync credentials expire within their configured lifetime and
+cannot be renewed. Local libraries and cached files remain on your devices.
+To recover, sign in normally before the deletion date. Papyrus will offer to keep
+your account. Choose **Keep account** to restore access and open your library
+immediately, without signing in again. Choosing **Not now**
+leaves deletion scheduled. Sign-in alone never cancels deletion automatically.
+When server email delivery is enabled, your verified email address receives a
+deletion notice with the deadline, or a confirmation when you keep the account.
+
+Deletion and recovery are also available without installing the app at the server's
+``/v1/account-deletion`` URL (or its configured API prefix). After the deadline,
+the server automatically deletes the account and its owned records, then removes
+managed media and the account's local acquisition import directory. Files held by
+external providers or download clients must be managed with those providers.
+Storage failures are retried without restoring account access.
+
+Automated database and media backups are not currently implemented. The planned
+retention limit for future backups is 30 days after permanent deletion. Future
+restore tooling must reapply deletions before serving restored data. Self-hosted
+operators must publish any separate backup or exceptional-retention policy using
+``ACCOUNT_DELETION_RETENTION_NOTICE``. This configuration changes the notice,
+not backup behavior.
+
+
 Troubleshooting
 ---------------
 

@@ -17,7 +17,7 @@ jobs:
       - uses: actions/checkout@v4
         with:
           repository: PapyrusReader/server
-          ref: cb00001f8bca3d204de403941fd113d7ede234a5
+          ref: 56b9d14e84fbc8805bca0998bcde825aa74e7e17
           path: .server
       - uses: astral-sh/setup-uv@v6
         with:

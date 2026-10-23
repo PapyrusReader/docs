@@ -1,6 +1,188 @@
 {
   "components": {
     "schemas": {
+      "AccountActionRequest": {
+        "properties": {
+          "authorization_token": {
+            "maxLength": 512,
+            "minLength": 1,
+            "title": "Authorization Token",
+            "type": "string"
+          }
+        },
+        "required": [
+          "authorization_token"
+        ],
+        "title": "AccountActionRequest",
+        "type": "object"
+      },
+      "AccountDeletionAuthorization": {
+        "properties": {
+          "authorization_token": {
+            "title": "Authorization Token",
+            "type": "string"
+          },
+          "deletion_due_at": {
+            "format": "date-time",
+            "title": "Deletion Due At",
+            "type": "string"
+          },
+          "deletion_pending": {
+            "title": "Deletion Pending",
+            "type": "boolean"
+          },
+          "email": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Email"
+          },
+          "expires_at": {
+            "format": "date-time",
+            "title": "Expires At",
+            "type": "string"
+          },
+          "user_id": {
+            "format": "uuid",
+            "title": "User Id",
+            "type": "string"
+          }
+        },
+        "required": [
+          "authorization_token",
+          "user_id",
+          "email",
+          "deletion_pending",
+          "deletion_due_at",
+          "expires_at"
+        ],
+        "title": "AccountDeletionAuthorization",
+        "type": "object"
+      },
+      "AccountDeletionStatus": {
+        "properties": {
+          "deletion_due_at": {
+            "anyOf": [
+              {
+                "format": "date-time",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Deletion Due At"
+          },
+          "message": {
+            "title": "Message",
+            "type": "string"
+          }
+        },
+        "required": [
+          "deletion_due_at",
+          "message"
+        ],
+        "title": "AccountDeletionStatus",
+        "type": "object"
+      },
+      "AccountGoogleExchangeRequest": {
+        "properties": {
+          "code": {
+            "maxLength": 512,
+            "minLength": 1,
+            "title": "Code",
+            "type": "string"
+          },
+          "verifier": {
+            "maxLength": 128,
+            "minLength": 43,
+            "title": "Verifier",
+            "type": "string"
+          }
+        },
+        "required": [
+          "code",
+          "verifier"
+        ],
+        "title": "AccountGoogleExchangeRequest",
+        "type": "object"
+      },
+      "AccountPasswordRequest": {
+        "properties": {
+          "email": {
+            "format": "email",
+            "title": "Email",
+            "type": "string"
+          },
+          "expected_user_id": {
+            "anyOf": [
+              {
+                "format": "uuid",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Expected User Id"
+          },
+          "password": {
+            "maxLength": 128,
+            "minLength": 1,
+            "title": "Password",
+            "type": "string"
+          }
+        },
+        "required": [
+          "email",
+          "password"
+        ],
+        "title": "AccountPasswordRequest",
+        "type": "object"
+      },
+      "AccountRecoveryRequest": {
+        "properties": {
+          "authorization_token": {
+            "maxLength": 512,
+            "minLength": 1,
+            "title": "Authorization Token",
+            "type": "string"
+          },
+          "client_type": {
+            "default": "unknown",
+            "enum": [
+              "mobile",
+              "desktop",
+              "web",
+              "unknown"
+            ],
+            "title": "Client Type",
+            "type": "string"
+          },
+          "device_label": {
+            "anyOf": [
+              {
+                "maxLength": 255,
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Device Label"
+          }
+        },
+        "required": [
+          "authorization_token"
+        ],
+        "title": "AccountRecoveryRequest",
+        "type": "object"
+      },
       "AcquisitionCapabilities": {
         "properties": {
           "arr_commands": {
@@ -3585,21 +3767,6 @@
           "file_storage"
         ],
         "title": "DataSyncSettingsResponse",
-        "type": "object"
-      },
-      "DeleteAccountRequest": {
-        "description": "Account deletion request.",
-        "properties": {
-          "password": {
-            "description": "Current password for confirmation",
-            "title": "Password",
-            "type": "string"
-          }
-        },
-        "required": [
-          "password"
-        ],
-        "title": "DeleteAccountRequest",
         "type": "object"
       },
       "EndpointKind": {
@@ -7495,6 +7662,13 @@
             ],
             "title": "Avatar Url"
           },
+          "connected_providers": {
+            "items": {
+              "type": "string"
+            },
+            "title": "Connected Providers",
+            "type": "array"
+          },
           "created_at": {
             "format": "date-time",
             "title": "Created At",
@@ -7679,13 +7853,13 @@
       "name": "Papyrus Support",
       "url": "https://github.com/PapyrusReader/papyrus"
     },
-    "description": "\nREST API for Papyrus - a cross-platform book management application.\n\n## Overview\n\nThe Papyrus Server handles metadata storage and synchronization for the Papyrus\ne-book reader application. It provides endpoints for:\n\n- **Authentication**: User registration, login, OAuth, and session management\n- **Books**: CRUD operations for book metadata and file references\n- **Organization**: Shelves, tags, and series management\n- **Annotations**: Highlights, notes, and bookmarks\n- **Progress**: Reading sessions and statistics\n- **Goals**: Reading goal tracking\n- **Sync**: Cross-device synchronization\n- **Storage**: File storage backend configuration\n- **Files**: File upload/download (when server is file backend)\n\n## Authentication\n\nMost endpoints require authentication via JWT Bearer token. Obtain tokens\nthrough the `/v1/auth/register`, `/v1/auth/login`, or the\nbrowser-based `/v1/auth/oauth/google/start` flow.\n\n```\nAuthorization: Bearer <access_token>\n```\n\nAccess tokens expire after `60` minutes.\nUse the refresh token to obtain new access tokens via `/v1/auth/refresh`.\n\n## Rate Limiting\n\nRate limits are enforced per user:\n\n| Endpoint Category | Limit |\n|-------------------|-------|\n| Authentication | 5 requests/minute |\n| General API | 100 requests/minute |\n| File uploads | 10 requests/minute |\n| Batch operations | 20 requests/minute |\n",
+    "description": "\nREST API for Papyrus - a cross-platform book management application.\n\n## Overview\n\nThe Papyrus Server handles metadata storage and synchronization for the Papyrus\ne-book reader application. It provides endpoints for:\n\n- **Authentication**: User registration, login, OAuth, and session management\n- **Books**: CRUD operations for book metadata and file references\n- **Organization**: Shelves, tags, and series management\n- **Annotations**: Highlights, notes, and bookmarks\n- **Progress**: Reading sessions and statistics\n- **Goals**: Reading goal tracking\n- **Sync**: Cross-device synchronization\n- **Storage**: File storage backend configuration\n- **Files**: File upload/download (when server is file backend)\n\n## Authentication\n\nMost endpoints require authentication via JWT Bearer token. Obtain tokens\nthrough the `/v1/auth/register`, `/v1/auth/login`, or the\nbrowser-based `/v1/auth/oauth/google/start` flow.\n\n```\nAuthorization: Bearer <access_token>\n```\n\nAccess tokens expire after `60` minutes.\nUse the refresh token to obtain new access tokens via `/v1/auth/refresh`.\n\n## Rate Limiting\n\nSync and file-upload limits are enforced per authenticated user, across sessions.\nAuthentication and OPDS relay limits are enforced per client IP. Limits are configurable:\n\n| Endpoint Category | Limit |\n|-------------------|-------|\n| Authentication | 5 requests/minute |\n| OPDS relay | 100 requests/minute |\n| File uploads | 60 requests/minute |\n| Sync transactions | 300 requests/minute |\n",
     "license": {
       "name": "AGPL-3.0",
       "url": "https://www.gnu.org/licenses/agpl-3.0.html"
     },
     "title": "Papyrus Server API",
-    "version": "0.0.2"
+    "version": "0.0.4"
   },
   "openapi": "3.1.0",
   "paths": {
@@ -7736,6 +7910,288 @@
         "summary": "Health Check",
         "tags": [
           "Health"
+        ]
+      }
+    },
+    "/v1/account-deletion/cancel": {
+      "post": {
+        "operationId": "cancel_v1_account_deletion_cancel_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/AccountRecoveryRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AuthTokens"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Cancel",
+        "tags": [
+          "Account deletion"
+        ]
+      }
+    },
+    "/v1/account-deletion/current": {
+      "post": {
+        "operationId": "schedule_current_v1_account_deletion_current_post",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AccountDeletionStatus"
+                }
+              }
+            },
+            "description": "Successful Response"
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "summary": "Schedule Current",
+        "tags": [
+          "Account deletion"
+        ]
+      }
+    },
+    "/v1/account-deletion/exchange": {
+      "post": {
+        "operationId": "exchange_v1_account_deletion_exchange_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/AccountGoogleExchangeRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AccountDeletionAuthorization"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Exchange",
+        "tags": [
+          "Account deletion"
+        ]
+      }
+    },
+    "/v1/account-deletion/google/start": {
+      "get": {
+        "operationId": "google_start_v1_account_deletion_google_start_get",
+        "parameters": [
+          {
+            "in": "query",
+            "name": "redirect_uri",
+            "required": true,
+            "schema": {
+              "title": "Redirect Uri",
+              "type": "string"
+            }
+          },
+          {
+            "in": "query",
+            "name": "challenge",
+            "required": true,
+            "schema": {
+              "pattern": "^[0-9a-f]{64}$",
+              "title": "Challenge",
+              "type": "string"
+            }
+          },
+          {
+            "in": "query",
+            "name": "expected_user_id",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "format": "uuid",
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Expected User Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Google Start",
+        "tags": [
+          "Account deletion"
+        ]
+      }
+    },
+    "/v1/account-deletion/password": {
+      "post": {
+        "operationId": "authenticate_password_v1_account_deletion_password_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/AccountPasswordRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AccountDeletionAuthorization"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Authenticate Password",
+        "tags": [
+          "Account deletion"
+        ]
+      }
+    },
+    "/v1/account-deletion/policy": {
+      "get": {
+        "operationId": "retention_policy_v1_account_deletion_policy_get",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "additionalProperties": {
+                    "type": "string"
+                  },
+                  "title": "Response Retention Policy V1 Account Deletion Policy Get",
+                  "type": "object"
+                }
+              }
+            },
+            "description": "Successful Response"
+          }
+        },
+        "summary": "Retention Policy",
+        "tags": [
+          "Account deletion"
+        ]
+      }
+    },
+    "/v1/account-deletion/schedule": {
+      "post": {
+        "operationId": "schedule_v1_account_deletion_schedule_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/AccountActionRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AccountDeletionStatus"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Schedule",
+        "tags": [
+          "Account deletion"
         ]
       }
     },
@@ -14381,44 +14837,6 @@
       }
     },
     "/v1/users/me": {
-      "delete": {
-        "description": "Disable the user account and revoke active sessions.",
-        "operationId": "delete_current_user_v1_users_me_delete",
-        "requestBody": {
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/DeleteAccountRequest"
-              }
-            }
-          },
-          "required": true
-        },
-        "responses": {
-          "204": {
-            "description": "Successful Response"
-          },
-          "422": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/HTTPValidationError"
-                }
-              }
-            },
-            "description": "Validation Error"
-          }
-        },
-        "security": [
-          {
-            "HTTPBearer": []
-          }
-        ],
-        "summary": "Delete current user account",
-        "tags": [
-          "Users"
-        ]
-      },
       "get": {
         "description": "Return the authenticated user's profile information.",
         "operationId": "get_current_user_v1_users_me_get",

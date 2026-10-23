@@ -124,11 +124,12 @@ These are product commitments, not a list of released capabilities. See
 
    **Acceptance criteria:**
 
-   - Deletion requires recent authentication: password confirmation or reauthentication with the linked Google identity
+   - In-app deletion uses the current authenticated session without another sign-in
+   - The public deletion resource requires password or linked-Google authentication
    - Users can request deletion from the application and from an accessible web resource
    - Before confirmation, show the data affected and the exact permanent-deletion deadline
    - Scheduling deletion revokes active sessions and starts a 30-day recovery window
-   - During that window, authenticated recovery allows the user to explicitly cancel deletion
+   - During that window, authenticated recovery allows the user to explicitly cancel deletion and immediately resume their session
    - Signing in for recovery does not silently cancel deletion or restore ordinary account access
    - After the deadline, permanently delete the account and associated server data, including managed media
    - Explain any exceptional retention and backup expiry in the published retention policy
@@ -139,9 +140,18 @@ These are product commitments, not a list of released capabilities. See
    this 30-day window. See `Google Play's account deletion requirements
    <https://support.google.com/googleplay/android-developer/answer/13327111?hl=en>`_.
 
-   **Implementation:** The server currently disables the account and revokes
-   sessions. Scheduling, recovery, permanent data cleanup, and the external
-   deletion resource remain outstanding.
+   **Implementation:** Settings and the public server deletion resource support
+   deletion through the current app session or password/linked-Google verification
+   on the public resource, session revocation, explicit recovery with immediate sign-in,
+   and automatic permanent cleanup with retryable media removal. The client warns
+   about the 30-day recovery period before confirmation and shows the exact deletion
+   date after scheduling. A dated preview before confirmation remains available
+   on the public web resource but is not implemented in the simplified client flow.
+   Local device data remains. Automated backups are not implemented.
+   The planned future backup-retention limit is 30 days after permanent deletion,
+   and restore tooling must reapply deletions before serving restored data.
+   Self-hosted deployments must configure their actual exceptional-retention notice.
+   Live provider and production deployment acceptance remain outstanding.
 
 ----
 
