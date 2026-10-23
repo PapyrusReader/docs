@@ -56,6 +56,25 @@ switch the active library without transferring guest data. Server profiles and
 users also have separate database and media scopes. Becoming connected does not
 turn a guest library into a synchronized account library.
 
+Account deletion and recovery
+-----------------------------
+
+In-app deletion uses the current authenticated session. Public deletion requests
+and sign-in to an account awaiting deletion use a short-lived, single-use
+credential. Scheduling revokes existing sessions. Explicit recovery cancels the
+request and issues fresh tokens in one transaction, without another sign-in.
+Email notices are queued in the account transaction and delivered asynchronously
+with retries. Notices are retained and delivered in event order for each account,
+then removed after delivery, seven days, or permanent account deletion.
+See :need:`FR-1_6` for the policy and :doc:`/manual/index` for the user flow.
+
+After the 30-day recovery window, a worker deletes account-owned records and
+queues physical media cleanup in the same database transaction. Cleanup runs at
+startup and every 60 seconds. Durable jobs survive restarts and retry storage
+failures, with row locks coordinating multiple workers. Local device libraries
+and external provider files remain outside this cleanup. Previously issued
+PowerSync tokens remain usable until expiry and cannot be renewed.
+
 Planned contracts
 -----------------
 

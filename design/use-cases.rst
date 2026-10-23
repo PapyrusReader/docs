@@ -331,7 +331,7 @@ Use case notation
    1. User opens account settings or the account-deletion web resource
    2. User selects "Delete account"
    3. System explains affected data and displays the permanent-deletion deadline
-   4. User confirms with a password or reauthenticates the linked Google identity
+   4. User confirms using the current app session, or authenticates on the public web resource
    5. System schedules deletion for 30 days after confirmation
    6. System revokes active sessions and disables normal account access
    7. At the deadline, system permanently deletes the account and associated server data, including managed media
@@ -347,7 +347,7 @@ Use case notation
 
    - Before the 30-day deadline, user authenticates into a limited recovery flow
    - System shows the deadline and offers explicit cancellation
-   - Confirming cancellation restores the account and its data
+   - Confirming cancellation restores the account and its data, signs the user in, and opens their library
    - Authentication alone does not cancel deletion
 
    *A3: Recovery window expired*
