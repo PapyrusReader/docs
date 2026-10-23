@@ -1581,6 +1581,38 @@
         "title": "BatchUpdateResponse",
         "type": "object"
       },
+      "Body_create_support_issue_v1_support_issues_post": {
+        "properties": {
+          "attachments": {
+            "anyOf": [
+              {
+                "items": {
+                  "contentMediaType": "application/octet-stream",
+                  "type": "string"
+                },
+                "type": "array"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Attachments"
+          },
+          "payload": {
+            "contentMediaType": "application/json",
+            "contentSchema": {
+              "$ref": "#/components/schemas/SupportRequest"
+            },
+            "title": "Payload",
+            "type": "string"
+          }
+        },
+        "required": [
+          "payload"
+        ],
+        "title": "Body_create_support_issue_v1_support_issues_post",
+        "type": "object"
+      },
       "Body_upload_book_cover_v1_books__book_id__cover_put": {
         "properties": {
           "file": {
@@ -6657,6 +6689,71 @@
           "release_token"
         ],
         "title": "SubmitRequest",
+        "type": "object"
+      },
+      "SupportRequest": {
+        "additionalProperties": false,
+        "properties": {
+          "app_version": {
+            "maxLength": 80,
+            "minLength": 1,
+            "title": "App Version",
+            "type": "string"
+          },
+          "description": {
+            "maxLength": 8000,
+            "minLength": 10,
+            "title": "Description",
+            "type": "string"
+          },
+          "kind": {
+            "enum": [
+              "bug",
+              "feature"
+            ],
+            "title": "Kind",
+            "type": "string"
+          },
+          "platform": {
+            "maxLength": 80,
+            "minLength": 1,
+            "title": "Platform",
+            "type": "string"
+          },
+          "title": {
+            "maxLength": 150,
+            "minLength": 1,
+            "title": "Title",
+            "type": "string"
+          }
+        },
+        "required": [
+          "kind",
+          "title",
+          "description",
+          "app_version",
+          "platform"
+        ],
+        "title": "SupportRequest",
+        "type": "object"
+      },
+      "SupportResponse": {
+        "properties": {
+          "number": {
+            "exclusiveMinimum": 0.0,
+            "title": "Number",
+            "type": "integer"
+          },
+          "url": {
+            "title": "Url",
+            "type": "string"
+          }
+        },
+        "required": [
+          "number",
+          "url"
+        ],
+        "title": "SupportResponse",
         "type": "object"
       },
       "Tag": {
@@ -14546,6 +14643,47 @@
         "summary": "Test storage backend connection",
         "tags": [
           "Storage"
+        ]
+      }
+    },
+    "/v1/support/issues": {
+      "post": {
+        "operationId": "create_support_issue_v1_support_issues_post",
+        "requestBody": {
+          "content": {
+            "multipart/form-data": {
+              "schema": {
+                "$ref": "#/components/schemas/Body_create_support_issue_v1_support_issues_post"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "201": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SupportResponse"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Create Support Issue",
+        "tags": [
+          "Support"
         ]
       }
     },
