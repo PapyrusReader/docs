@@ -5,6 +5,8 @@ intended capabilities, while implementation notes describe current behavior.
 The [Papyrus GitHub Project](https://github.com/orgs/PapyrusReader/projects/1)
 tracks requirements and tasks across the component repositories.
 
+Published documentation: <https://docs.papyrus-reader.com/>.
+
 ## Setup and preview
 
 Install uv, Python 3.12, and Graphviz (`dot` must be on PATH), then run:
@@ -22,6 +24,27 @@ integration pushes without publishing. When ready, promote `development` to
 back into `development`. The Deploy workflow builds with the same lock and
 publishes GitHub Pages only from `master`, including manual runs. Keep both
 long-lived branches and do not squash release promotions.
+
+## Hosting and custom domain
+
+GitHub Pages hosts the documentation independently of the application server.
+In this repository's **Settings → Pages**, use **GitHub Actions** as the build
+source and set the custom domain to `docs.papyrus-reader.com`.
+The DNS record is:
+
+| Type | Name | Target |
+| --- | --- | --- |
+| CNAME | `docs` | `papyrusreader.github.io` |
+
+Use DNS-only routing while GitHub validates the domain and issues its TLS
+certificate, then enable **Enforce HTTPS** in Pages settings. The CNAME target
+must not include `/docs` or a URL scheme. Actions deployments use the custom
+domain from Pages settings, not a repository `CNAME` file. `html_baseurl` in
+`conf.py` sets canonical page URLs to the same HTTPS domain.
+
+After a production deployment, check the homepage, a nested manual page, and
+their styles and navigation at the custom domain. DNS and certificate issuance
+must finish before HTTPS can be verified.
 
 ## Requirements and local agents
 
