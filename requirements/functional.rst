@@ -433,7 +433,7 @@ Authentication implementation tasks
 
 .. fr:: Metadata fetching
    :id: FR-2_13
-   :status: open
+   :status: implemented
    :priority: P1
    :links: UC-2_3
 
@@ -446,9 +446,15 @@ Authentication implementation tasks
    - User reviews and confirms changes before applying
    - Cover images can be fetched automatically
 
+   **Implementation evidence (2026-10-25):** Metadata fetching is implemented through selectable Open Library and
+   Google Books searches, a reviewable book-edit draft, and fetched cover URLs.
+   Source review and focused provider/persistence tests passed on 2026-10-25.
+   See `the criterion-by-criterion closure record
+   <https://github.com/PapyrusReader/docs/issues/15>`_.
+
 .. fr:: Physical book tracking
    :id: FR-2_14
-   :status: open
+   :status: implemented
    :priority: P1
    :links: UC-2_9
 
@@ -460,6 +466,12 @@ Authentication implementation tasks
    - Physical books appear in library alongside digital
    - Reading status and progress tracking
    - Location field (e.g., "Shelf 3", "Lent to John")
+
+   **Implementation evidence (2026-10-25):** Physical books use the persisted library model alongside digital books.
+   Manual metadata, location/lending fields, reading status, and page progress
+   are implemented. Model, library, and editing tests passed on 2026-10-25.
+   See `the criterion-by-criterion closure record
+   <https://github.com/PapyrusReader/docs/issues/16>`_.
 
 ----
 
@@ -707,7 +719,7 @@ Authentication implementation tasks
 
 .. fr:: Automatic goal progress
    :id: FR-6_3
-   :status: open
+   :status: implemented
    :priority: P1
    :links: UC-6_2
 
@@ -719,6 +731,12 @@ Authentication implementation tasks
    - Reading time updates time-based goals
    - Pages read updates page-count goals
    - Progress is calculated in real-time
+
+   **Implementation evidence (2026-10-25):** Reader activity feeds live goal projections for completed books, reading
+   time, and page coverage. Reading-activity and goal tests passed on
+   2026-10-25.
+   See `the criterion-by-criterion closure record
+   <https://github.com/PapyrusReader/docs/issues/39>`_.
 
 .. fr:: Goal notifications
    :id: FR-6_4
@@ -762,7 +780,7 @@ Authentication implementation tasks
 
 .. fr:: Metadata server configuration
    :id: FR-7_1_1
-   :status: open
+   :status: implemented
    :priority: P0
    :links: UC-7_1
 
@@ -776,6 +794,12 @@ Authentication implementation tasks
    - Login/registration on metadata server
    - Clear indication when offline or disconnected
    - Works without metadata server (local-only mode)
+
+   **Implementation evidence (2026-10-25):** Official and custom server profiles support URL validation, discovery,
+   authentication, connection-state presentation, and guest/local-only use.
+   Server-profile provider and settings-page tests passed on 2026-10-25.
+   See `the criterion-by-criterion closure record
+   <https://github.com/PapyrusReader/docs/issues/42>`_.
 
 .. fr:: File upload
    :id: FR-7_2
@@ -824,7 +848,7 @@ Authentication implementation tasks
 
 .. fr:: OPDS catalog support
    :id: FR-7_5
-   :status: open
+   :status: implemented
    :priority: P2
    :links: UC-7_4
 
@@ -837,3 +861,9 @@ Authentication implementation tasks
    - Search within catalogs
    - Download books directly to library
    - Authentication for protected catalogs
+
+   **Implementation evidence (2026-10-25):** OPDS catalog management, navigation, search, acquisition, and protected
+   catalog credentials are implemented. The fixture-backed OPDS suite passed
+   on 2026-10-25. The ten opt-in network smoke cases were not run.
+   See `the criterion-by-criterion closure record
+   <https://github.com/PapyrusReader/docs/issues/46>`_.
