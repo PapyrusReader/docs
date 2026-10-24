@@ -596,7 +596,7 @@ missing. See :doc:`index` for status definitions.
 
 .. nfr:: Logging and monitoring
    :id: NFR-9_2
-   :status: open
+   :status: partial
    :priority: P1
 
    The system shall provide comprehensive logging and monitoring capabilities.
@@ -609,9 +609,13 @@ missing. See :doc:`index` for status definitions.
    - Log rotation and retention policies
    - Error tracking integration (optional)
 
+   **Remaining scope:** Production monitoring tasks below are implemented, but
+   structured logging and configurable levels across every application component
+   have not been established. This parent requirement remains open.
+
 .. task:: Deploy self-hosted production observability
    :id: TASK-OBS-01
-   :status: open
+   :status: implemented
    :priority: P1
    :component: observability
    :readiness: ready
@@ -632,9 +636,16 @@ missing. See :doc:`index` for status definitions.
    - Restart, redaction, notification, and rollback behavior are verified
    - Whole-host outage detection and telemetry backups are explicitly deferred
 
+   **Implementation evidence:** The remaining production observation gate passed on 2026-10-25. All
+   eight acceptance checks passed, including full-window sample coverage.
+   Earlier deployment, browser, notification, restart, redaction, and rollback
+   evidence remains attached to the task.
+   See `the completion record
+   <https://github.com/PapyrusReader/observability/issues/1>`_.
+
 .. task:: Expose private PowerSync monitoring metrics
    :id: TASK-OBS-02
-   :status: open
+   :status: implemented
    :priority: P1
    :component: server
    :readiness: ready
@@ -649,9 +660,14 @@ missing. See :doc:`index` for status definitions.
    - The collector can scrape port 9090 on the private Docker network
    - Existing public API and synchronization behavior remain available
 
+   **Implementation evidence:** Private PowerSync metrics are deployed, with implementation and
+   production acceptance recorded on the completed task.
+   See `the completion record
+   <https://github.com/PapyrusReader/server/issues/23>`_.
+
 .. task:: Integrate the observability repository into the workspace
    :id: TASK-OBS-03
-   :status: open
+   :status: implemented
    :priority: P1
    :component: papyrus
    :readiness: ready
@@ -668,9 +684,15 @@ missing. See :doc:`index` for status definitions.
    - Only the edge project publishes ports and databases remain private
    - Existing component changes and deployment data are preserved
 
+   **Implementation evidence:** Workspace integration is merged in papyrus#33. The four-project
+   deployment boundary and workspace tooling checks passed again on 2026-10-25.
+   The prerequisite production observation gate has also passed.
+   See `the completion record
+   <https://github.com/PapyrusReader/papyrus/issues/32>`_.
+
 .. task:: Restrict monitoring access to WireGuard
    :id: TASK-OBS-04
-   :status: open
+   :status: implemented
    :priority: P1
    :component: observability
    :readiness: ready
@@ -692,9 +714,14 @@ missing. See :doc:`index` for status definitions.
    - Client secrets are never committed or printed and can be revoked individually
    - Existing public application endpoints and monitoring continue to operate
 
+   **Implementation evidence:** WireGuard isolation, real-peer HTTPS access, revocation, and public
+   service regression acceptance are recorded on the completed task.
+   See `the completion record
+   <https://github.com/PapyrusReader/observability/issues/15>`_.
+
 .. task:: Monitor aggregate app statistics
    :id: TASK-OBS-05
-   :status: open
+   :status: implemented
    :priority: P1
    :component: observability
    :readiness: ready
@@ -715,3 +742,8 @@ missing. See :doc:`index` for status definitions.
    - Failed collection preserves the last good snapshot and exposes freshness and failure status
    - History, storage growth, and recent registration windows are visible without treating gauges as counters
    - Existing production services, private dashboard access, and alerts remain healthy
+
+   **Implementation evidence:** Aggregate collection, failure handling, production parity, and
+   authenticated dashboard acceptance are recorded on the completed task.
+   See `the completion record
+   <https://github.com/PapyrusReader/observability/issues/20>`_.
