@@ -1613,6 +1613,27 @@
         "title": "Body_create_support_issue_v1_support_issues_post",
         "type": "object"
       },
+      "Body_upload_avatar_v1_users_me_avatar_post": {
+        "properties": {
+          "display_name": {
+            "maxLength": 100,
+            "minLength": 1,
+            "title": "Display Name",
+            "type": "string"
+          },
+          "file": {
+            "contentMediaType": "application/octet-stream",
+            "title": "File",
+            "type": "string"
+          }
+        },
+        "required": [
+          "file",
+          "display_name"
+        ],
+        "title": "Body_upload_avatar_v1_users_me_avatar_post",
+        "type": "object"
+      },
       "Body_upload_book_cover_v1_books__book_id__cover_put": {
         "properties": {
           "file": {
@@ -15041,6 +15062,98 @@
           }
         ],
         "summary": "Update current user profile",
+        "tags": [
+          "Users"
+        ]
+      }
+    },
+    "/v1/users/me/avatar": {
+      "post": {
+        "operationId": "upload_avatar_v1_users_me_avatar_post",
+        "requestBody": {
+          "content": {
+            "multipart/form-data": {
+              "schema": {
+                "$ref": "#/components/schemas/Body_upload_avatar_v1_users_me_avatar_post"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/User"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "summary": "Save profile with private photo",
+        "tags": [
+          "Users"
+        ]
+      }
+    },
+    "/v1/users/me/avatar/{avatar_id}": {
+      "get": {
+        "operationId": "download_avatar_v1_users_me_avatar__avatar_id__get",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "avatar_id",
+            "required": true,
+            "schema": {
+              "format": "uuid",
+              "title": "Avatar Id",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "summary": "Download current private profile photo",
         "tags": [
           "Users"
         ]

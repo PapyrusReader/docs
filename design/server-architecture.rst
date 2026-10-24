@@ -56,6 +56,26 @@ switch the active library without transferring guest data. Server profiles and
 users also have separate database and media scopes. Becoming connected does not
 turn a guest library into a synchronized account library.
 
+Profile photos
+--------------
+
+``POST /v1/users/me/avatar`` accepts a multipart JPEG/PNG ``file`` and
+``display_name``. The server bounds each photo to 5 MiB, checks its image
+signature, serializes writes on the owner row, and commits the photo reference
+and name together. Photos use a separate fixed allowance from library storage.
+The client resizes photos to at most 512 pixels on the longest side and removes
+source metadata before uploading.
+
+The existing ``avatar_url`` field stores an API-prefix-relative reference such
+as ``/users/me/avatar/{uuid}``. Fetching it requires the owner's access token
+against the configured server. External provider photo URLs remain supported,
+but are fetched without Papyrus credentials. Downloads are private and marked
+``no-store``. Replacing a photo removes the previous file after commit, and
+permanent account deletion removes the entire owner media directory, including
+photos. Failed writes retain the previous reference and file. This increment
+does not change database schemas or PowerSync projections. Deploy the updated
+server before clients that offer photo uploads.
+
 Account deletion and recovery
 -----------------------------
 
