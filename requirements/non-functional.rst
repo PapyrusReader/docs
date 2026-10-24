@@ -348,17 +348,26 @@ missing. See :doc:`index` for status definitions.
    :status: open
    :priority: P0
 
-   The application shall be accessible to users with disabilities (WCAG 2.1 AA compliance).
+   The application shall target WCAG 2.2 Level AA, using WCAG2ICT guidance
+   to interpret the criteria for native software. Conformance requires a
+   complete evaluation of the declared scope, not only automated checks.
 
    **Acceptance criteria:**
 
    - Screen reader compatibility (TalkBack, VoiceOver)
-   - Minimum color contrast ratio 4.5:1
-   - All interactive elements keyboard accessible
-   - Focus indicators visible
-   - Text scalable up to 200%
+   - Text contrast of at least 4.5:1, or 3:1 for qualifying large text
+   - Meaningful control boundaries and state indicators have at least 3:1 contrast
+   - All functionality keyboard accessible, with visible, unobscured focus
+   - Text scalable to at least 200% without loss of content or functionality
    - No information conveyed by color alone
-   - Touch targets minimum 44x44 points
+   - Programmatic names, roles, states, and important status messages
+   - Accessible authentication permits paste and password-manager assistance
+   - Standalone client touch controls have at least 48 logical-pixel hit areas
+     (a product target exceeding WCAG 2.2 AA target-size minimums)
+
+   The :doc:`/implementation/accessibility` matrix records foundation coverage
+   and outstanding checks. This requirement remains open until the complete
+   application scope has been evaluated.
 
 .. nfr:: RTL and internationalization
    :id: NFR-5_3

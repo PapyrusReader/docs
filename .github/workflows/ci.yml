@@ -17,8 +17,8 @@ jobs:
       - uses: actions/checkout@v4
         with:
           repository: PapyrusReader/server
-          # Combined account-deletion (#40) and support (#41) API snapshot revision.
-          ref: cc69c75abfb5b48954fcbe0593f247ef32bb5244
+          # Includes the private profile-photo API from server PR #42.
+          ref: 235fd051e2bf72283bcc6da4ecb2d1860b6ef332
           path: .server
       - uses: astral-sh/setup-uv@v6
         with:

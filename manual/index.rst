@@ -40,11 +40,45 @@ DRM-protected content are not supported. Book-level notes, annotations, and
 bookmarks should not be confused with selecting and highlighting text in the
 reader, which remains unfinished.
 
+Accessibility settings
+----------------------
+
+Open **Settings > Accessibility**. These preferences take effect immediately
+and are stored on this device, shared across guest and signed-in profiles.
+
+- **Interface text enlargement** adds 15%, 30%, 50%, or 100% to the system's
+  existing text scaling. **System default** adds no enlargement. The system's
+  nonlinear scaling curve is preserved. A live preview shows the result.
+- **Increase contrast** follows the system when off and forces increased
+  contrast when on, in either light or dark mode. E-ink uses its own contrast
+  treatment, so this control is disabled while that appearance is selected.
+- **Bold interface text** follows the system when off and adds bold interface
+  text when on, including editable fields and navigation.
+- **Interface font** offers **System default** and **OpenDyslexic** with a live
+  preview. This is a personal reading preference, not a claim that a particular
+  font improves reading for every person with dyslexia.
+- **Reduce animations** limits interface motion. System reduced motion is
+  always honored, and e-ink also reduces motion.
+
+Additional interface text enlargement and bold text do not change embedded
+reader text metrics. Reader controls retain system scaling and bold-text
+settings, and book rendering retains the reader's own preferences. These
+settings do not change books, saved positions, or reading preferences.
+
 Accounts and offline access
 ---------------------------
 
 An account connects a library to a Papyrus server for synchronization. Different
 users and server profiles have separate libraries and cached media.
+
+In **Settings > Account**, users can edit their display name and choose
+a profile photo directly. **Save** applies both changes together. JPEG and PNG
+photos up to 5 MB and 25 megapixels are supported. Photos are resized and image
+metadata is removed before saving. In anonymous mode, the name and photo are
+saved on this device without a network connection and survive app restarts.
+They stay separate from signed-in profiles and are removed when the anonymous
+account is deleted. Signed-in profile changes are saved to the account's server.
+Email is shown for reference and cannot be edited here.
 
 Books need to be available locally to read without a network connection.
 Synchronization and online catalogs require connectivity. Full-library content

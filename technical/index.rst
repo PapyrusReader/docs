@@ -187,6 +187,7 @@ Related documents
 
    /implementation/technologies
    /implementation/github-workflow
+   /implementation/accessibility
 
 .. toctree::
    :maxdepth: 1
