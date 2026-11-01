@@ -30,3 +30,76 @@ provider adapters are product goals and should not be inferred from stored
 storage-profile configuration. The requirement and entity diagrams elsewhere in
 this documentation describe target behavior; consult the server models and Alembic
 revisions for the deployed schema.
+
+Synchronization policy
+----------------------
+
+The target conflict policy is specified in :need:`NFR-2_3`. The Papyrus API
+decides which writes to accept. PowerSync carries queued uploads and replicates
+the committed result. Client timestamps are not a global ordering mechanism.
+
+The current library mutation handler discards client-supplied ``updated_at``,
+applies supplied fields, and assigns a server update time. Tombstones protect
+deleted entities. JSON payloads are not recursively merged. Owner serialization,
+atomic batches, and history validation remain part of the server contract.
+These mechanisms need acceptance coverage across the full set of mutable fields
+before the whole requirement can be marked verified.
+
+See `PowerSync conflict handling
+<https://docs.powersync.com/handling-writes/handling-update-conflicts>`_.
+
+Guest and account boundaries
+----------------------------
+
+Guest libraries remain separate from account libraries. Registration and sign-in
+switch the active library without transferring guest data. Server profiles and
+users also have separate database and media scopes. Becoming connected does not
+turn a guest library into a synchronized account library.
+
+Profile photos
+--------------
+
+``POST /v1/users/me/avatar`` accepts a multipart JPEG/PNG ``file`` and
+``display_name``. The server bounds each photo to 5 MiB, checks its image
+signature, serializes writes on the owner row, and commits the photo reference
+and name together. Photos use a separate fixed allowance from library storage.
+The client resizes photos to at most 512 pixels on the longest side and removes
+source metadata before uploading.
+
+The existing ``avatar_url`` field stores an API-prefix-relative reference such
+as ``/users/me/avatar/{uuid}``. Fetching it requires the owner's access token
+against the configured server. External provider photo URLs remain supported,
+but are fetched without Papyrus credentials. Downloads are private and marked
+``no-store``. Replacing a photo removes the previous file after commit, and
+permanent account deletion removes the entire owner media directory, including
+photos. Failed writes retain the previous reference and file. This increment
+does not change database schemas or PowerSync projections. Deploy the updated
+server before clients that offer photo uploads.
+
+Account deletion and recovery
+-----------------------------
+
+In-app deletion uses the current authenticated session. Public deletion requests
+and sign-in to an account awaiting deletion use a short-lived, single-use
+credential. Scheduling revokes existing sessions. Explicit recovery cancels the
+request and issues fresh tokens in one transaction, without another sign-in.
+Email notices are queued in the account transaction and delivered asynchronously
+with retries. Notices are retained and delivered in event order for each account,
+then removed after delivery, seven days, or permanent account deletion.
+See :need:`FR-1_6` for the policy and :doc:`/manual/index` for the user flow.
+
+After the 30-day recovery window, a worker deletes account-owned records and
+queues physical media cleanup in the same database transaction. Cleanup runs at
+startup and every 60 seconds. Durable jobs survive restarts and retry storage
+failures, with row locks coordinating multiple workers. Local device libraries
+and external provider files remain outside this cleanup. Previously issued
+PowerSync tokens remain usable until expiry and cannot be renewed.
+
+Planned contracts
+-----------------
+
+Email verification before sign-in, recoverable account deletion followed by
+permanent cleanup, and full-library content search are requirements with remaining
+implementation work. They are not capabilities established by the architecture
+diagram above. Additional storage providers remain committed targets, but
+automatic failover is outside scope.

@@ -1,6 +1,11 @@
 Database model
 ==============
 
+This diagram is the target domain model, not a generated representation of the
+current database. For deployed tables, use the server's SQLAlchemy models and
+Alembic revisions. Authentication credentials, managed media, and tracking
+payloads currently differ from the target entities shown here.
+
 Entity relationship diagram
 ---------------------------
 

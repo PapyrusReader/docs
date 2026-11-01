@@ -1,4 +1,4 @@
-.PHONY: install install-dev serve build clean lint
+.PHONY: install install-dev serve build clean lint requirements test project-plan project-sync
 
 install:
 	uv sync --locked
@@ -17,3 +17,16 @@ clean:
 
 lint: build
 	uv run --locked linkchecker _build/html/index.html --check-extern --no-warnings
+
+requirements:
+	uv run --locked sphinx-build -W --keep-going -b needs . _build/needs
+	uv run --locked python scripts/github_work.py export
+
+test:
+	uv run --locked python -m unittest discover -s tests -v
+
+project-plan:
+	uv run --locked python scripts/github_work.py plan
+
+project-sync:
+	uv run --locked python scripts/github_work.py sync

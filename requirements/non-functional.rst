@@ -1,6 +1,9 @@
 Non-functional Requirements
 ===========================
 
+These targets remain commitments even when implementation or measurements are
+missing. See :doc:`index` for status definitions.
+
 1. Storage
 ----------
 
@@ -31,6 +34,8 @@ Non-functional Requirements
    2. Cloud storage: Google Drive, OneDrive, Dropbox
    3. Self-hosted server (MinIO, local file system)
    4. Network-attached storage (NAS via SMB/NFS)
+   5. WebDAV and S3-compatible storage
+   6. Dedicated Papyrus server
 
    **Acceptance criteria:**
 
@@ -44,14 +49,16 @@ Non-functional Requirements
    :status: open
    :priority: P1
 
-   The system shall support multiple storage backends per user with automatic failover.
+   The system shall support multiple storage backends per user with explicit selection.
 
    **Acceptance criteria:**
 
    - User can configure up to 3 storage backends
    - One backend is designated as primary
-   - Automatic failover to secondary if primary is unavailable
-   - Manual override to force specific backend
+   - User can explicitly select a different backend
+   - An unavailable backend is reported without silently redirecting uploads elsewhere
+
+   Automatic failover and cross-provider replication are outside the committed scope.
 
 .. nfr:: File encryption
    :id: NFR-1_4
@@ -81,10 +88,11 @@ Non-functional Requirements
 
    **Acceptance criteria:**
 
-   - All reading features work offline
+   - Reading features work offline for locally available books
    - Library management works offline
    - Annotations and notes work offline
    - Only sync and cloud features require connectivity
+   - Full-text search works against locally available indexes and reports incomplete offline coverage
    - Clear indicator of online/offline status
 
 .. nfr:: Offline change indicators
@@ -103,31 +111,39 @@ Non-functional Requirements
 
 .. nfr:: Conflict resolution
    :id: NFR-2_3
-   :status: open
+   :status: partial
    :priority: P1
 
-   Synchronization conflicts shall be resolved with user-selectable strategies.
-
-   **Resolution Strategies:**
-
-   1. Server wins (default)
-   2. Client wins
-   3. Manual resolution (user chooses)
-   4. Merge (where possible)
+   Synchronization uses one server-authoritative last-write-wins policy,
+   enforced by the Papyrus API. PowerSync replicates the resulting database state.
 
    **Acceptance criteria:**
 
-   - User can set default strategy in settings
-   - Per-conflict override option
-   - Conflict history log
-   - No silent data loss
+   - The last valid write applied by the server wins for each supplied field, including reading position
+   - Client wall-clock timestamps do not determine precedence
+   - Changes to different fields are preserved when uploads contain only the changed fields
+   - JSON objects and arrays are field values, with no implicit recursive merge
+   - Entity deletions take precedence over stale updates, using tombstones to prevent resurrection
+   - Per-client upload order is preserved, and retries do not duplicate an operation's effects
+   - Validation, ownership checks, and append-only history rules still apply before a write is accepted
+   - There is no user-selectable strategy or manual conflict-resolution workflow
+   - Detected conflicts are recorded in a history log without requiring user resolution
+
+   An older offline edit uploaded later may replace a newer edit to the same
+   field. This is the expected consequence of server-order last-write-wins.
+   See :doc:`/design/server-architecture` for implementation boundaries.
+
+   **Implementation:** The server applies supplied fields and protects deleted
+   entities with tombstones. The conflict history log and full acceptance
+   coverage remain outstanding.
 
 .. nfr:: Sync performance
    :id: NFR-2_4
    :status: open
    :priority: P0
 
-   Cross-device synchronization shall complete within 30 seconds under normal network conditions (>= 1 Mbps).
+   Under normal network conditions (>= 1 Mbps), reading positions shall synchronize
+   within 30 seconds and other metadata within 1 minute.
 
    **Acceptance criteria:**
 
@@ -202,6 +218,9 @@ Non-functional Requirements
    - Background sync support
    - Push notifications (optional)
 
+   **Implementation:** The client currently targets iOS 15.0. The iOS 12.0
+   requirement remains an unmet compatibility target.
+
 .. nfr:: E-ink device support
    :id: NFR-3_4
    :status: open
@@ -248,12 +267,13 @@ Non-functional Requirements
    :status: open
    :priority: P0
 
-   Book opening time shall not exceed 2 seconds for files up to 50 MB.
+   Book opening time shall be under 2 seconds for EPUB and under 3 seconds for PDF
+   files up to 50 MB.
 
    **Acceptance criteria:**
 
-   - EPUB < 50 MB opens in < 2 seconds
-   - PDF < 50 MB opens in < 3 seconds
+   - EPUB up to 50 MB opens in < 2 seconds
+   - PDF up to 50 MB opens in < 3 seconds
    - Progress indicator for larger files
    - Last reading position restored automatically
    - Opening performance measured on mid-range devices
@@ -328,17 +348,26 @@ Non-functional Requirements
    :status: open
    :priority: P0
 
-   The application shall be accessible to users with disabilities (WCAG 2.1 AA compliance).
+   The application shall target WCAG 2.2 Level AA, using WCAG2ICT guidance
+   to interpret the criteria for native software. Conformance requires a
+   complete evaluation of the declared scope, not only automated checks.
 
    **Acceptance criteria:**
 
    - Screen reader compatibility (TalkBack, VoiceOver)
-   - Minimum color contrast ratio 4.5:1
-   - All interactive elements keyboard accessible
-   - Focus indicators visible
-   - Text scalable up to 200%
+   - Text contrast of at least 4.5:1, or 3:1 for qualifying large text
+   - Meaningful control boundaries and state indicators have at least 3:1 contrast
+   - All functionality keyboard accessible, with visible, unobscured focus
+   - Text scalable to at least 200% without loss of content or functionality
    - No information conveyed by color alone
-   - Touch targets minimum 44x44 points
+   - Programmatic names, roles, states, and important status messages
+   - Accessible authentication permits paste and password-manager assistance
+   - Standalone client touch controls have at least 48 logical-pixel hit areas
+     (a product target exceeding WCAG 2.2 AA target-size minimums)
+
+   The :doc:`/implementation/accessibility` matrix records foundation coverage
+   and outstanding checks. This requirement remains open until the complete
+   application scope has been evaluated.
 
 .. nfr:: RTL and internationalization
    :id: NFR-5_3
@@ -410,7 +439,7 @@ Non-functional Requirements
    :status: open
    :priority: P0
 
-   All data transmission shall use TLS 1.3 or higher encryption.
+   All data transmission shall use TLS 1.2 or higher, with TLS 1.3 preferred.
 
    **Acceptance criteria:**
 
@@ -567,7 +596,7 @@ Non-functional Requirements
 
 .. nfr:: Logging and monitoring
    :id: NFR-9_2
-   :status: open
+   :status: partial
    :priority: P1
 
    The system shall provide comprehensive logging and monitoring capabilities.
@@ -579,3 +608,142 @@ Non-functional Requirements
    - No sensitive data in logs
    - Log rotation and retention policies
    - Error tracking integration (optional)
+
+   **Remaining scope:** Production monitoring tasks below are implemented, but
+   structured logging and configurable levels across every application component
+   have not been established. This parent requirement remains open.
+
+.. task:: Deploy self-hosted production observability
+   :id: TASK-OBS-01
+   :status: implemented
+   :priority: P1
+   :component: observability
+   :readiness: ready
+   :implements: NFR-9_2
+   :validation: python3 tools/check.py; python3 -m unittest discover -s tests; Linux Compose smoke tests; authenticated browser and email acceptance; 24-hour production observation
+
+   **Scope:** Provision Grafana, Prometheus, Loki, and Alloy independently of
+   application releases. Own the shared Caddy proxy configuration while preserving
+   its deployment identity and certificates. Use restricted database monitoring
+   roles and sanitized logs. Host the stack on the existing production VM.
+
+   **Acceptance criteria:**
+
+   - Four provisioned dashboards cover service health, subdomain traffic, resources, and database/sync activity
+   - Email alerts cover failures, capacity pressure, restarts, and missing telemetry
+   - Metrics retain up to 90 days with a size limit; logs retain 14 days with a disk guard
+   - Grafana requires authentication through the shared HTTPS proxy; collectors remain private
+   - Restart, redaction, notification, and rollback behavior are verified
+   - Whole-host outage detection and telemetry backups are explicitly deferred
+
+   **Implementation evidence:** The remaining production observation gate passed on 2026-10-25. All
+   eight acceptance checks passed, including full-window sample coverage.
+   Earlier deployment, browser, notification, restart, redaction, and rollback
+   evidence remains attached to the task.
+   See `the completion record
+   <https://github.com/PapyrusReader/observability/issues/1>`_.
+
+.. task:: Expose private PowerSync monitoring metrics
+   :id: TASK-OBS-02
+   :status: implemented
+   :priority: P1
+   :component: server
+   :readiness: ready
+   :implements: NFR-9_2
+   :validation: deployment checks; PowerSync config test; scrape metrics privately and verify sync readiness
+
+   **Scope:** Enable the existing PowerSync service's Prometheus endpoint without
+   publishing a host port or changing application schemas.
+
+   **Acceptance criteria:**
+
+   - The collector can scrape port 9090 on the private Docker network
+   - Existing public API and synchronization behavior remain available
+
+   **Implementation evidence:** Private PowerSync metrics are deployed, with implementation and
+   production acceptance recorded on the completed task.
+   See `the completion record
+   <https://github.com/PapyrusReader/server/issues/23>`_.
+
+.. task:: Integrate the observability repository into the workspace
+   :id: TASK-OBS-03
+   :status: implemented
+   :priority: P1
+   :component: papyrus
+   :readiness: ready
+   :implements: NFR-9_2
+   :depends_on: TASK-OBS-01;TASK-OBS-02
+   :validation: python3 tools/check_deployments.py; tools/papyrus check tooling
+
+   **Scope:** Add the observability submodule and move shared proxy ownership to
+   it. Update deployment validation, CI, and maintainer documentation.
+
+   **Acceptance criteria:**
+
+   - Four independent Compose projects are validated together
+   - Only the edge project publishes ports and databases remain private
+   - Existing component changes and deployment data are preserved
+
+   **Implementation evidence:** Workspace integration is merged in papyrus#33. The four-project
+   deployment boundary and workspace tooling checks passed again on 2026-10-25.
+   The prerequisite production observation gate has also passed.
+   See `the completion record
+   <https://github.com/PapyrusReader/papyrus/issues/32>`_.
+
+.. task:: Restrict monitoring access to WireGuard
+   :id: TASK-OBS-04
+   :status: implemented
+   :priority: P1
+   :component: observability
+   :readiness: ready
+   :implements: NFR-9_2
+   :depends_on: TASK-OBS-01
+   :validation: native configuration checks; private peer provisioning tests; real WireGuard handshake and HTTPS access; public and spoofed-header denial; public application regression checks
+
+   **Scope:** Self-host WireGuard on the production VM and make Grafana reachable
+   only through authenticated VPN peers. Preserve the existing dashboard hostname,
+   HTTPS certificate, Grafana login, metrics collection, and email alerts. Provide
+   a private client profile and documented peer revocation and recovery.
+
+   **Acceptance criteria:**
+
+   - Public requests cannot reach Grafana or its login form, including forged forwarding headers
+   - VPN peers can resolve the private dashboard address and access it over valid HTTPS
+   - Peers can reach only dashboard HTTPS and the VPN DNS resolver, not databases or other server ports
+   - Only the dashboard address is routed through the VPN; normal Internet traffic stays local
+   - Client secrets are never committed or printed and can be revoked individually
+   - Existing public application endpoints and monitoring continue to operate
+
+   **Implementation evidence:** WireGuard isolation, real-peer HTTPS access, revocation, and public
+   service regression acceptance are recorded on the completed task.
+   See `the completion record
+   <https://github.com/PapyrusReader/observability/issues/15>`_.
+
+.. task:: Monitor aggregate app statistics
+   :id: TASK-OBS-05
+   :status: implemented
+   :priority: P1
+   :component: observability
+   :readiness: ready
+   :implements: NFR-9_2
+   :depends_on: TASK-OBS-01
+   :validation: isolated PostgreSQL aggregation and failure tests; native monitoring configuration checks; Grafana provisioning smoke tests; production aggregate comparison and authenticated dashboard acceptance
+
+   **Scope:** Add an App statistics dashboard for registered accounts, recent
+   registrations, library entries, uploaded files, and their storage. Collect
+   bounded aggregates periodically without exporting personal or book-level data.
+
+   **Acceptance criteria:**
+
+   - Counts explicitly describe server-synced data and exclude device-only libraries
+   - Library entries, distinct uploaded contents, registered files, logical file bytes, and filesystem usage have separate definitions
+   - Account deletion, duplicate uploads, physical books, and unknown file formats are handled correctly
+   - Collection uses read-only queries with bounded execution time and fixed metric labels
+   - Failed collection preserves the last good snapshot and exposes freshness and failure status
+   - History, storage growth, and recent registration windows are visible without treating gauges as counters
+   - Existing production services, private dashboard access, and alerts remain healthy
+
+   **Implementation evidence:** Aggregate collection, failure handling, production parity, and
+   authenticated dashboard acceptance are recorded on the completed task.
+   See `the completion record
+   <https://github.com/PapyrusReader/observability/issues/20>`_.

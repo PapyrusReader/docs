@@ -1,8 +1,11 @@
 # Papyrus documentation
 
-Sphinx publishes the product requirements, current architecture, and API reference.
-Requirements describe intended capabilities; the implementation chapters describe
-current behavior.
+Sphinx publishes a user manual and technical specification. Requirements describe
+intended capabilities, while implementation notes describe current behavior.
+The [Papyrus GitHub Project](https://github.com/orgs/PapyrusReader/projects/1)
+tracks requirements and tasks across the component repositories.
+
+Published documentation: <https://docs.papyrus-reader.com/>.
 
 ## Setup and preview
 
@@ -15,7 +18,53 @@ make serve
 
 Preview at <http://127.0.0.1:8000>. `make build` produces `_build/html/` and treats
 Sphinx warnings as failures. `make lint` additionally checks external links.
-The Deploy workflow builds with the same lock and publishes GitHub Pages on master.
+Feature/fix PRs target the default `development` branch. CI checks PRs and
+integration pushes without publishing. When ready, promote `development` to
+`master` with a release PR using **Create a merge commit**, then bring `master`
+back into `development`. The Deploy workflow builds with the same lock and
+publishes GitHub Pages only from `master`, including manual runs. Keep both
+long-lived branches and do not squash release promotions.
+
+## Hosting and custom domain
+
+GitHub Pages hosts the documentation independently of the application server.
+In this repository's **Settings → Pages**, use **GitHub Actions** as the build
+source and set the custom domain to `docs.papyrus-reader.com`.
+The DNS record is:
+
+| Type | Name | Target |
+| --- | --- | --- |
+| CNAME | `docs` | `papyrusreader.github.io` |
+
+Use DNS-only routing while GitHub validates the domain and issues its TLS
+certificate, then enable **Enforce HTTPS** in Pages settings. The CNAME target
+must not include `/docs` or a URL scheme. Actions deployments use the custom
+domain from Pages settings, not a repository `CNAME` file. `html_baseurl` in
+`conf.py` sets canonical page URLs to the same HTTPS domain.
+
+After a production deployment, check the homepage, a nested manual page, and
+their styles and navigation at the custom domain. DNS and certificate issuance
+must finish before HTTPS can be verified.
+
+## Requirements and local agents
+
+Run `make requirements` to validate and export the structured requirements and
+tasks, and `make test` to test the synchronization and task eligibility rules.
+CI also performs these checks and uploads the generated JSON as an artifact.
+
+With GitHub CLI authenticated for repository and Projects access:
+
+```bash
+make project-plan
+make project-sync
+uv run --locked python scripts/work_issue.py https://github.com/PapyrusReader/docs/issues/NUMBER --launch
+```
+
+Synchronization requires committed, pushed documentation. It preserves discussion
+outside the managed issue section and does not automatically close requirements.
+Local launches claim only Ready tasks with completed dependencies and prepare an
+isolated checkout. See [the workflow](implementation/github-workflow.rst) for field
+ownership, changed specifications, claim recovery, and PR completion.
 
 ## API snapshot
 

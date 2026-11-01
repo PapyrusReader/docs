@@ -21,13 +21,45 @@ Priority levels
 - **P2** - medium (v1.x).
 - **P3** - low (v2.x+).
 
+Implementation status
+~~~~~~~~~~~~~~~~~~~~~
+
+- **open** - a committed requirement whose complete implementation has not been established.
+- **in_progress** - implementation work is actively under way.
+- **partial** - some acceptance criteria are implemented and others remain incomplete.
+- **implemented** - all acceptance criteria are implemented, with evidence recorded.
+- **verified** - the complete requirement has passed the relevant acceptance checks.
+- **deferred** - still a commitment, but postponed.
+
+Priority and implementation status are independent. Existing ``open`` entries
+have not all been reassessed and do not prove that a feature is entirely absent.
+Use cases describe intended flows, not instructions for using the released app.
+Implementation notes belong alongside the relevant requirement. A documentation
+build does not verify product behavior.
+
 ----
 
 All requirements
 ----------------
 
 .. needtable::
+   :filter: type in ["fr", "nfr"]
    :columns: id;title;status;priority
+   :style: table
+   :sort: id
+
+Implementation tasks
+--------------------
+
+Tasks describe bounded work in one owning repository. Each task links to the
+requirements it implements, names dependencies, and records validation.
+``readiness`` describes whether its specification is actionable. The GitHub
+Project records execution state. A ready specification may still be blocked by
+unfinished dependencies.
+
+.. needtable::
+   :filter: type == "task"
+   :columns: id;title;component;readiness;implements;depends_on
    :style: table
    :sort: id
 

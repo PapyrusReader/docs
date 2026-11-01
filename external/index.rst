@@ -26,5 +26,5 @@ Community
 
 - `GitHub repository <https://github.com/Eoic/Papyrus>`__ - Source code
   and issue tracking.
-- `Discord server <https://discord.gg/your-discord-invite>`__ -
-  Community discussions.
+- `Papyrus project <https://github.com/orgs/PapyrusReader/projects/1>`__ -
+  Requirements and implementation tasks.
