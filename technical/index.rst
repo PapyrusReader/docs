@@ -188,6 +188,7 @@ Related documents
    /implementation/technologies
    /implementation/github-workflow
    /implementation/accessibility
+   /implementation/watched-folders
 
 .. toctree::
    :maxdepth: 1

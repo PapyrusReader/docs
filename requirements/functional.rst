@@ -328,6 +328,29 @@ Authentication implementation tasks
    - Metadata is automatically extracted from file
    - Duplicate detection with merge options
 
+   **Device folders:**
+
+   - Library → Folders is the management destination for connected device folders
+   - Add book → Connect folder opens the system picker directly, then a preview
+     and configuration bottom sheet without leaving Library
+   - Preview is read-only, supports optional shelves and includes subfolders by default
+   - Confirmation imports existing supported files and watches for later additions
+     while the application is running (foreground on mobile and web)
+   - Imports create independent local copies, work offline, and use normal account
+     upload queues when signed in. Guest imports remain local
+   - Exact content duplicates reuse a known library book. Source changes require
+     an explicit choice and never replace books, progress or annotations automatically
+   - Source removal and stopping a connection retain imported books. Library deletion
+     records an exclusion until the user explicitly requests reimport
+   - Connections, permissions, exclusions and retry journals remain local to the
+     destination profile and survive an ordinary account-cache reset
+   - Platforms without persistent folder access provide a clearly labeled one-time
+     import and require selecting the folder again for later additions
+
+   See :doc:`/implementation/watched-folders` for architecture, packaging and the
+   platform acceptance checklist. Independent offline devices can still import
+   duplicate books before their libraries synchronize.
+
 .. fr:: Full-text search
    :id: FR-2_7
    :status: open
