@@ -184,6 +184,11 @@ Authentication implementation tasks
    - Record a rollout order that keeps client/server changes compatible during deployment
    - Keep password policy changes, account deletion, and full-library search outside this task
 
+   **Contract:** :doc:`/design/authentication` records the proposed HTTP outcomes,
+   verification evidence, client boundaries and rollout order. It becomes the
+   implementation baseline after review and merge. This documentation does not
+   mark the server/client tasks or parent requirements implemented.
+
 .. task:: Enforce verified sign-in in the authentication service
    :id: TASK-AUTH-02
    :status: open
