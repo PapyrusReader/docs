@@ -180,7 +180,6 @@ Related documents
    /design/entities
    /design/database-model
    /design/server-architecture
-   /design/authentication
 
 .. toctree::
    :maxdepth: 1

@@ -1,11 +1,18 @@
 Verification before sign-in
 ========================================================================
 
-This is the proposed HTTP contract for :need:`TASK-AUTH-01`, implementing the
-verification portions of :need:`FR-1_1`, :need:`FR-1_2` and :need:`FR-1_3`.
+Status: proposed, pending review. This contributor proposal is excluded from the
+published documentation. It is not a user manual or a description of the system.
+
+Tracking: `docs #81 <https://github.com/PapyrusReader/docs/issues/81>`_.
+Implementation: `server #22 <https://github.com/PapyrusReader/server/issues/22>`_
+and `client #60 <https://github.com/PapyrusReader/client/issues/60>`_.
+
+This is the proposed HTTP contract for ``TASK-AUTH-01``, implementing the
+verification portions of ``FR-1_1``, ``FR-1_2`` and ``FR-1_3``.
 It becomes the implementation baseline when this documentation change is merged.
 It is not a description of deployed behavior. Server and client delivery remain
-:need:`TASK-AUTH-02` and :need:`TASK-AUTH-03`. Password policy, password recovery
+``TASK-AUTH-02`` and ``TASK-AUTH-03``. Password policy, password recovery
 policy, account deletion policy and full-library search are outside this change.
 
 Source review on 2026-11-06 used server revision

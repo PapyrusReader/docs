@@ -98,11 +98,8 @@ PowerSync tokens remain usable until expiry and cannot be renewed.
 Planned contracts
 -----------------
 
-The verification-before-sign-in HTTP contract is specified in
-:doc:`authentication`. It defines pending responses, Google authority, existing
-session enforcement and coordinated rollout for :need:`TASK-AUTH-02` and
-:need:`TASK-AUTH-03`. The contract is not deployed behavior.
-
-Full-library content search remains unimplemented. Additional storage providers
-remain committed targets, but automatic failover is outside scope. Account
-deletion and recovery have the implemented scope described above.
+Email verification before sign-in, recoverable account deletion followed by
+permanent cleanup, and full-library content search are requirements with remaining
+implementation work. They are not capabilities established by the architecture
+diagram above. Additional storage providers remain committed targets, but
+automatic failover is outside scope.
