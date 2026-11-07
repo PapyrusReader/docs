@@ -126,7 +126,6 @@ graphviz_output_format = "svg"
 mermaid_output_format = "raw"
 
 exclude_patterns = [
-    "proposals",
     "_build",
     "src",
     ".venv",
