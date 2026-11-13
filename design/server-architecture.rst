@@ -42,6 +42,18 @@ The current library mutation handler discards client-supplied ``updated_at``,
 applies supplied fields, and assigns a server update time. Tombstones protect
 deleted entities. JSON payloads are not recursively merged. Owner serialization,
 atomic batches, and history validation remain part of the server contract.
+Reading history is an immutable ledger: corrections append reversals, and progress
+is projected from eligible time intervals and document coverage. Tracking writes
+are staged locally until the server advertises the current schema contract.
+
+Timers use versioned transitions under the same owner lock. The first accepted
+branch wins; stale branches are acknowledged without applying their effects. Saving
+a timer, appending its activities and updating book progress form one transaction.
+Conflicting saves discard the whole batch. Terminal rows prevent delayed offline
+writes from reviving completed timers. Native notification actions are journaled
+on the device and replayed through the client repository; they do not write to
+PowerSync independently.
+
 These mechanisms need acceptance coverage across the full set of mutable fields
 before the whole requirement can be marked verified.
 
@@ -72,9 +84,7 @@ against the configured server. External provider photo URLs remain supported,
 but are fetched without Papyrus credentials. Downloads are private and marked
 ``no-store``. Replacing a photo removes the previous file after commit, and
 permanent account deletion removes the entire owner media directory, including
-photos. Failed writes retain the previous reference and file. This increment
-does not change database schemas or PowerSync projections. Deploy the updated
-server before clients that offer photo uploads.
+photos. Failed writes retain the previous reference and file.
 
 Account deletion and recovery
 -----------------------------
@@ -95,11 +105,22 @@ failures, with row locks coordinating multiple workers. Local device libraries
 and external provider files remain outside this cleanup. Previously issued
 PowerSync tokens remain usable until expiry and cannot be renewed.
 
-Planned contracts
------------------
+Verification before sign-in
+----------------------------
 
-Email verification before sign-in, recoverable account deletion followed by
-permanent cleanup, and full-library content search are requirements with remaining
-implementation work. They are not capabilities established by the architecture
-diagram above. Additional storage providers remain committed targets, but
-automatic failover is outside scope.
+Registration creates a pending account and queues verification mail without
+issuing an application session. Login, refresh and authenticated API access require
+verification of the account's current primary email. Verification consumes a
+single-use email-bound token; the client then signs in separately. Google sign-in
+uses provider authority for eligible Gmail/Workspace identities and Papyrus email
+verification for other addresses. Guest data stays separate throughout these flows.
+
+The generated :doc:`/api/index` defines the wire schemas. Auth services and their
+regression tests own eligibility, token consumption and delivery behavior.
+
+Planned capabilities
+--------------------
+
+Full-library content search and additional storage providers remain product
+targets. Their presence in requirements or diagrams does not establish implemented
+behavior. Automatic storage failover is outside scope.

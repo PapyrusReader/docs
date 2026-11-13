@@ -25,9 +25,9 @@ These are product commitments, not a list of released capabilities. See
    - Verification links are single-use, expire after 24 hours, and can be resent with rate limiting
    - Guest use remains available without verification and keeps its own separate library
 
-   **Implementation:** Registration and verification services exist, but
-   registration currently creates an authenticated session. Requiring verification
-   first needs coordinated changes to the server and the client registration flow.
+   **Implementation:** The server returns pending-verification details without
+   session tokens. The client shows verification guidance and keeps the guest
+   library separate. After verifying the email address, the user signs in.
 
    Email ownership is required because the address identifies the account and
    supports recovery. See `OWASP authentication guidance
@@ -50,8 +50,9 @@ These are product commitments, not a list of released capabilities. See
    - Successful login creates a secure session token
    - User is redirected to their library after login
 
-   **Implementation:** Email/password login exists, but the server does not
-   currently enforce email verification before issuing a session.
+   **Implementation:** The server requires verification of the current primary
+   email before issuing or refreshing a session. The client routes unverified
+   users to verification guidance without installing an authenticated session.
 
 .. fr:: OAuth login (Google)
    :id: FR-1_3
