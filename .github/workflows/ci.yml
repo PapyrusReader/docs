@@ -17,8 +17,8 @@ jobs:
       - uses: actions/checkout@v4
         with:
           repository: PapyrusReader/server
-          # Includes verified sign-in and the current library sync contracts.
-          ref: 0108e2db00fc907335616d37147159d804cb0030
+          # Includes the admin user directory and account roles.
+          ref: 49f162dde6109eab97373c9b4625ad748a3d9064
           path: .server
       - uses: astral-sh/setup-uv@v6
         with:
