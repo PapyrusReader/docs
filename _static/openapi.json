@@ -9629,6 +9629,37 @@
               "title": "Limit",
               "type": "integer"
             }
+          },
+          {
+            "in": "query",
+            "name": "sort_by",
+            "required": false,
+            "schema": {
+              "default": "created_at",
+              "enum": [
+                "display_name",
+                "email",
+                "role",
+                "status",
+                "created_at",
+                "last_sign_in_at",
+                "book_count",
+                "used_bytes",
+                "average_bytes"
+              ],
+              "title": "Sort By",
+              "type": "string"
+            }
+          },
+          {
+            "in": "query",
+            "name": "descending",
+            "required": false,
+            "schema": {
+              "default": true,
+              "title": "Descending",
+              "type": "boolean"
+            }
           }
         ],
         "responses": {
