@@ -18,7 +18,7 @@ jobs:
         with:
           repository: PapyrusReader/server
           # Includes the admin user directory and account roles.
-          ref: 1836c20932cb1d52813448225e3a340922625604
+          ref: 7b77143a0bc9ab0b6df01e328c32aa48bca87378
           path: .server
       - uses: astral-sh/setup-uv@v6
         with:

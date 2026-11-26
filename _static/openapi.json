@@ -9635,7 +9635,7 @@
             "name": "sort_by",
             "required": false,
             "schema": {
-              "default": "created_at",
+              "default": "display_name",
               "enum": [
                 "display_name",
                 "email",
@@ -9656,7 +9656,7 @@
             "name": "descending",
             "required": false,
             "schema": {
-              "default": true,
+              "default": false,
               "title": "Descending",
               "type": "boolean"
             }
